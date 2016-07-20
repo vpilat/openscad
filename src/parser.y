@@ -145,7 +145,7 @@ fs::path parser_sourcefile;
 input:    /* empty */
         | TOK_USE
             {
-              rootmodule->registerUse(std::string($1));
+              rootmodule->registerUse(UseNode(std::string($1), LOC(@$)));
               free($1);
             }
           input

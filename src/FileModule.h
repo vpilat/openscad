@@ -19,7 +19,7 @@ public:
 	virtual std::string dump(const std::string &indent, const std::string &name) const;
 	void setModulePath(const std::string &path) { this->path = path; }
 	const std::string &modulePath() const { return this->path; }
-        void registerUse(const std::string path);
+	void registerUse(const UseNode &usenode);
 	void registerInclude(const std::string &localpath, const std::string &fullpath);
 	bool includesChanged() const;
 	bool handleDependencies();
@@ -29,7 +29,7 @@ public:
 	ValuePtr lookup_variable(const std::string &name) const;
 
 	LocalScope scope;
-	typedef std::unordered_set<std::string> ModuleContainer;
+	typedef std::unordered_map<std::string, UseNode> ModuleContainer;
 	ModuleContainer usedlibs;
 private:
 	// Reference to retain the context that was used in the last evaluation

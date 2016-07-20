@@ -202,9 +202,9 @@ ValuePtr FileContext::evaluate_function(const std::string &name,
 	const AbstractFunction *foundf = findLocalFunction(name);
 	if (foundf) return foundf->evaluate(this, evalctx);
 
-	for(const auto &m : this->usedlibs) {
+	for(const auto &lib : this->usedlibs) {
 		// usedmod is NULL if the library wasn't be compiled (error or file-not-found)
-		FileModule *usedmod = ModuleCache::instance()->lookup(m);
+		FileModule *usedmod = ModuleCache::instance()->lookup(lib.first);
 		if (usedmod && usedmod->scope.functions.find(name) != usedmod->scope.functions.end())
 			return sub_evaluate_function(name, evalctx, usedmod);
 	}
@@ -217,8 +217,8 @@ AbstractNode *FileContext::instantiate_module(const ModuleInstantiation &inst, E
 	const AbstractModule *foundm = this->findLocalModule(inst.name());
 	if (foundm) return foundm->instantiate(this, &inst, evalctx);
 
-	for(const auto &m : this->usedlibs) {
-		FileModule *usedmod = ModuleCache::instance()->lookup(m);
+	for(const auto &lib : this->usedlibs) {
+		FileModule *usedmod = ModuleCache::instance()->lookup(lib.first);
 		// usedmod is NULL if the library wasn't be compiled (error or file-not-found)
 		if (usedmod &&
 				usedmod->scope.modules.find(inst.name()) != usedmod->scope.modules.end()) {

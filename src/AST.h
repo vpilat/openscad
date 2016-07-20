@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 class Location {
 public:
 	Location(int firstLine, int firstCol, int lastLine, int lastCol)
@@ -31,3 +33,12 @@ public:
 protected:
 	Location loc;
 };
+
+class UseNode : public ASTNode
+{
+public:
+	UseNode(const std::string &filename, const Location &loc) : ASTNode(loc), filename(filename) {}
+
+	std::string filename;
+};
+

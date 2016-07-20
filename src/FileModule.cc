@@ -48,8 +48,8 @@ std::string FileModule::dump(const std::string &indent, const std::string &name)
 	return scope.dump(indent);
 }
 
-void FileModule::registerUse(const std::string path) {
-	std::string extraw = fs::path(path).extension().generic_string();
+void FileModule::registerUse(const UseNode &usenode) {
+	std::string extraw = fs::path(usenode.filename).extension().generic_string();
 	std::string ext = boost::algorithm::to_lower_copy(extraw);
 	
 	if ((ext == ".otf") || (ext == ".ttf")) {
@@ -59,7 +59,7 @@ void FileModule::registerUse(const std::string path) {
 			PRINTB("ERROR: Can't read font with path '%s'", path);
 		}
 	} else {
-		usedlibs.insert(path);
+		usedlibs.insert({usenode.filename, usenode});
 	}
 }
 
@@ -110,8 +110,10 @@ bool FileModule::handleDependencies()
 	// If a lib in usedlibs was previously missing, we need to relocate it
 	// by searching the applicable paths. We can identify a previously missing module
 	// as it will have a relative path.
-	for(auto filename : this->usedlibs) {
-
+	for(const auto &lib : this->usedlibs) {
+		std::string filename = lib.first;
+		const auto &usenode = lib.second;
+		
 		bool wasmissing = false;
 		bool found = true;
 
@@ -149,8 +151,8 @@ bool FileModule::handleDependencies()
 	// Relative filenames which were located is reinserted as absolute filenames
 	typedef std::pair<std::string,std::string> stringpair;
 	for(const auto &files : updates) {
+		this->usedlibs.insert({files.second, this->usedlibs.at(files.first)});
 		this->usedlibs.erase(files.first);
-		this->usedlibs.insert(files.second);
 	}
 	this->is_handling_dependencies = false;
 	return somethingchanged;
