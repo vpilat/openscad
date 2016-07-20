@@ -79,23 +79,6 @@ void ModuleContext::initializeModule(const UserModule &module)
 //	evaluateAssignments(module.scope.assignments);
 }
 
-/*!
-	Only used to initialize builtins for the top-level root context
-*/
-void ModuleContext::registerBuiltin()
-{
-	const LocalScope &scope = Builtins::instance()->getGlobalScope();
-
-	// FIXME: Don't access module members directly
-	this->functions_p = &scope.functions;
-	this->modules_p = &scope.modules;
-	for(const auto &ass : scope.assignments) {
-		this->set_variable(ass.name, ass.expr->evaluate(this));
-	}
-
-	this->set_constant("PI", ValuePtr(M_PI));
-}
-
 const AbstractFunction *ModuleContext::findLocalFunction(const std::string &name) const
 {
 	if (this->functions_p && this->functions_p->find(name) != this->functions_p->end()) {

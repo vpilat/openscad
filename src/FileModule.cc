@@ -39,7 +39,7 @@ namespace fs = boost::filesystem;
 #include <sys/stat.h>
 
 FileModule::FileModule(const std::string &path, const std::string &filename)
-	: ASTNode(Location::NONE), path(path), filename(filename), context(nullptr), is_handling_dependencies(false)
+	: ASTNode(Location::NONE), context(nullptr), is_handling_dependencies(false), path(path), filename(filename)
 {
 }
 

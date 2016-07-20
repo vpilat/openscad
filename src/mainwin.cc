@@ -26,6 +26,7 @@
 #include <iostream>
 #include "openscad.h"
 #include "GeometryCache.h"
+#include "FileModule.h"
 #include "ModuleCache.h"
 #include "MainWindow.h"
 #include "OpenSCADApp.h"
@@ -222,8 +223,6 @@ MainWindow::MainWindow(const QString &filename)
 	connect(this->cgalworker, SIGNAL(done(shared_ptr<const Geometry>)), 
 					this, SLOT(actionRenderDone(shared_ptr<const Geometry>)));
 #endif
-
-	top_ctx.registerBuiltin();
 
 	root_module = NULL;
 	absolute_root_node = NULL;

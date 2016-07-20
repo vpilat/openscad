@@ -16,7 +16,6 @@ public:
 	virtual ~ModuleContext();
 
 	void initializeModule(const class UserModule &m);
-	void registerBuiltin();
 	virtual ValuePtr evaluate_function(const std::string &name, 
 																										const EvalContext *evalctx) const;
 	virtual AbstractNode *instantiate_module(const ModuleInstantiation &inst, 
