@@ -1698,9 +1698,8 @@ void MainWindow::compileTopLevelDocument()
 	this->root_module = NULL;
 
 	auto fnameba = this->fileName.toLocal8Bit();
-    const char* fname =
-        this->fileName.isEmpty() ? "" : fnameba;
-	this->root_module = parse(fulltext.c_str(), fs::path(fname), false);
+	const char* fname = this->fileName.isEmpty() ? "" : fnameba;
+	this->root_module = parse(fulltext.c_str(), fname, false);
 }
 
 void MainWindow::checkAutoReload()

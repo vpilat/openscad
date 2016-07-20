@@ -596,15 +596,16 @@ void yyerror (char const *s)
          sourcefile() % lexerget_lineno() % s);
 }
 
-FileModule *parse(const char *text, const fs::path &filename, int debug)
+FileModule *parse(const char *text, const std::string &filename, int debug)
 {
+  fs::path path = fs::absolute(fs::path(filename));
+  
   lexerin = NULL;
   parser_error_pos = -1;
   parser_input_buffer = text;
-  parser_sourcefile = fs::absolute(filename);
+  parser_sourcefile = path;
 
-  rootmodule = new FileModule();
-  rootmodule->setModulePath(filename.parent_path().generic_string());
+  rootmodule = new FileModule(path.parent_path().generic_string(), path.filename().generic_string());
   scope_stack.push(&rootmodule->scope);
   //        PRINTB_NOCACHE("New module: %s %p", "root" % rootmodule);
 

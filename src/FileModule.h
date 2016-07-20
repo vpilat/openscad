@@ -9,15 +9,14 @@
 #include "value.h"
 #include "localscope.h"
 
-class FileModule : public AbstractModule
+class FileModule : public AbstractModule, public ASTNode
 {
 public:
-	FileModule() : context(nullptr), is_handling_dependencies(false) {}
+	FileModule(const std::string &path, const std::string &filename);
 	virtual ~FileModule();
 
 	virtual AbstractNode *instantiate(const Context *ctx, const ModuleInstantiation *inst, EvalContext *evalctx = NULL) const;
 	virtual std::string dump(const std::string &indent, const std::string &name) const;
-	void setModulePath(const std::string &path) { this->path = path; }
 	const std::string &modulePath() const { return this->path; }
 	void registerUse(const UseNode &usenode);
 	void registerInclude(const std::string &localpath, const std::string &fullpath);
@@ -45,5 +44,7 @@ private:
 	typedef std::unordered_map<std::string, struct IncludeFile> IncludeContainer;
 	IncludeContainer includes;
 	bool is_handling_dependencies;
+
 	std::string path;
+	std::string filename;
 };
