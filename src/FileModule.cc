@@ -54,17 +54,18 @@ std::string FileModule::dump(const std::string &indent, const std::string &name)
 }
 
 void FileModule::registerUse(const UseNode &usenode) {
-	std::string extraw = fs::path(usenode.filename).extension().generic_string();
+	const std::string filename = usenode.filename;
+	std::string extraw = fs::path(filename).extension().generic_string();
 	std::string ext = boost::algorithm::to_lower_copy(extraw);
 	
 	if ((ext == ".otf") || (ext == ".ttf")) {
-		if (fs::is_regular(path)) {
-			FontCache::instance()->register_font_file(path);
+		if (fs::is_regular(filename)) {
+			FontCache::instance()->register_font_file(filename);
 		} else {
-			PRINTB("ERROR: Can't read font with path '%s'", path);
+			PRINTB("ERROR: Can't read font with path '%s'", filename);
 		}
 	} else {
-		usedlibs.insert({usenode.filename, usenode});
+		usedlibs.insert({filename, usenode});
 	}
 }
 

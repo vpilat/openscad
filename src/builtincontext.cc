@@ -31,16 +31,14 @@ class AbstractNode *BuiltinContext::instantiate_module(const class ModuleInstant
 	const auto &search = Builtins::instance()->getModules().find(name);
 	if (search != Builtins::instance()->getModules().end()) {
 		AbstractModule *m = search->second;
-		if (m->is_enabled()) {
-			return m->instantiate(this, &inst, evalctx);
-		}
-		else {
+		if (!m->is_enabled()) {
 			PRINTB("WARNING: Experimental builtin module '%s' is not enabled.", name);
 		}
 		std::string replacement = Builtins::instance()->instance()->isDeprecated(name);
 		if (!replacement.empty()) {
 			PRINT_DEPRECATION("The %s() module will be removed in future releases. Use %s instead.", name % replacement);
 		}
+		return m->instantiate(this, &inst, evalctx);
 	}
 	return Context::instantiate_module(inst, evalctx);
 }
