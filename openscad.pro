@@ -276,6 +276,7 @@ HEADERS += src/version_check.h \
            src/builtin.h \
            src/calc.h \
            src/context.h \
+           src/builtincontext.h \
            src/modcontext.h \
            src/evalcontext.h \
            src/csgops.h \
@@ -379,6 +380,7 @@ SOURCES += \
            src/feature.cc \
            src/node.cc \
            src/context.cc \
+           src/builtincontext.cc \
            src/modcontext.cc \
            src/evalcontext.cc \
            src/csgnode.cc \
