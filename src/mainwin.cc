@@ -27,6 +27,7 @@
 #include "openscad.h"
 #include "GeometryCache.h"
 #include "FileModule.h"
+#include "modcontext.h"
 #include "ModuleCache.h"
 #include "MainWindow.h"
 #include "OpenSCADApp.h"
@@ -1015,7 +1016,6 @@ void MainWindow::compileDone(bool didchange)
 	if (didchange) {
 		updateTemporalVariables();
 		instantiateRoot();
-		updateCamera();
 		updateCompileResult();
 		callslot = afterCompileSlot;
 	}
@@ -1069,8 +1069,10 @@ void MainWindow::instantiateRoot()
 		ModuleInstantiation mi = ModuleInstantiation( "group" );
 		this->root_inst = mi;
 
-		this->absolute_root_node = this->root_module->instantiate(&top_ctx, &this->root_inst, NULL);
-
+		FileContext filectx(&top_ctx);
+		this->absolute_root_node = this->root_module->instantiateWithFileContext(&filectx, &this->root_inst, NULL);
+		this->updateCamera(filectx);
+		
 		if (this->absolute_root_node) {
 			// Do we have an explicit root node (! modifier)?
 			if (!(this->root_node = find_root_tag(this->absolute_root_node))) {
@@ -1603,11 +1605,8 @@ void MainWindow::updateTemporalVariables()
  * are assigned on top-level, the values are used to change the camera
  * rotation, translation and distance. 
  */
-void MainWindow::updateCamera()
+void MainWindow::updateCamera(const FileContext &ctx)
 {
-	if (!root_module)
-		return;
-	
 	bool camera_set = false;
 
 	Camera cam(qglview->cam);
@@ -1621,7 +1620,7 @@ void MainWindow::updateCamera()
 	double d = cam.zoomValue();
 
 	double x, y, z;
-	const ValuePtr vpr = root_module->lookup_variable("$vpr");
+	const ValuePtr vpr = ctx.lookup_variable("$vpr");
 	if (vpr->getVec3(x, y, z)) {
 		rx = x;
 		ry = y;
@@ -1629,7 +1628,7 @@ void MainWindow::updateCamera()
 		camera_set = true;
 	}
 
-	const ValuePtr vpt = root_module->lookup_variable("$vpt");
+	const ValuePtr vpt = ctx.lookup_variable("$vpt");
 	if (vpt->getVec3(x, y, z)) {
 		tx = x;
 		ty = y;
@@ -1637,7 +1636,7 @@ void MainWindow::updateCamera()
 		camera_set = true;
 	}
 
-	const ValuePtr vpd = root_module->lookup_variable("$vpd");
+	const ValuePtr vpd = ctx.lookup_variable("$vpd");
 	if (vpd->type() == Value::NUMBER) {
 		d = vpd->toDouble();
 		camera_set = true;
