@@ -19,6 +19,6 @@ std::string ASTNode::dump(const std::string &indent) const
 
 void UseNode::print(std::ostream &stream, const std::string &indent) const
 {
-	stream << indent << "use <" << this->filename << ">;\n";
+	stream << indent << "use <" << this->filename << ">\n";
 }
 
