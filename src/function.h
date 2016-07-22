@@ -46,7 +46,7 @@ public:
 	virtual ~UserFunction();
 
 	virtual ValuePtr evaluate(const Context *ctx, const EvalContext *evalctx) const;
-	virtual std::string dump(const std::string &indent) const;
+	virtual void print(std::ostream &stream, const std::string &indent) const;
         
 	static UserFunction *create(const char *name, AssignmentList &definition_arguments, shared_ptr<Expression> expr, const Location &loc);
 };

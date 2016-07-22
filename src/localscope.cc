@@ -23,22 +23,20 @@ void LocalScope::addChild(ModuleInstantiation *ch)
 	this->children.push_back(ch); 
 }
 
-std::string LocalScope::dump(const std::string &indent) const
+void LocalScope::print(std::ostream &stream, const std::string &indent) const
 {
-	std::stringstream dump;
 	for(const auto &f : this->functions) {
-		dump << f.second->dump(indent);
+		f.second->print(stream, indent);
 	}
 	for(const auto &m : this->modules) {
-		dump << m.second->dump(indent);
+		m.second->print(stream, indent);
 	}
 	for(const auto &ass : this->assignments) {
-		dump << ass.dump(indent);
+		ass.print(stream, indent);
 	}
 	for(const auto &inst : this->children) {
-		dump << inst->dump(indent);
+		inst->print(stream, indent);
 	}
-	return dump.str();
 }
 
 std::vector<AbstractNode*> LocalScope::instantiateChildren(const Context *evalctx) const

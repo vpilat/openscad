@@ -14,7 +14,7 @@ public:
 	virtual ~UserModule() {}
 
 	virtual AbstractNode *instantiate(const Context *ctx, const ModuleInstantiation *inst, EvalContext *evalctx = NULL) const;
-	virtual std::string dump(const std::string &indent) const;
+	virtual void print(std::ostream &stream, const std::string &indent) const;
 	static const std::string& stack_element(int n) { return module_stack[n]; };
 	static int stack_size() { return module_stack.size(); };
 

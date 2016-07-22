@@ -2,9 +2,7 @@
 #include "expression.h"
 #include <sstream>
 
-std::string Assignment::dump(const std::string &indent) const
+void Assignment::print(std::ostream &stream, const std::string &indent) const
 {
-	std::stringstream dump;
-	dump << indent << this->name << " = " << *this->expr << ";\n";
-	return dump.str();
+	stream << indent << this->name << " = " << *this->expr << ";\n";
 }

@@ -28,18 +28,22 @@ public:
   ASTNode(const Location &loc) : loc(loc) {}
 	virtual ~ASTNode() {}
 
-	virtual std::string dump(const std::string &indent) const { return ""; }
+	virtual void print(std::ostream &stream, const std::string &indent) const = 0;
 
+	std::string dump(const std::string &indent) const;
 	const Location &location() const { return loc; }
 
 protected:
 	Location loc;
 };
 
+std::ostream &operator<<(std::ostream &stream, const ASTNode &ast);
+
 class UseNode : public ASTNode
 {
 public:
 	UseNode(const std::string &filename, const Location &loc) : ASTNode(loc), filename(filename) {}
+	virtual void print(std::ostream &stream, const std::string &indent) const;
 
 	std::string filename;
 };

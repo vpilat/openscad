@@ -47,9 +47,12 @@ FileModule::~FileModule()
 {
 }
 
-std::string FileModule::dump(const std::string &indent) const
+void FileModule::print(std::ostream &stream, const std::string &indent) const
 {
-	return scope.dump(indent);
+	for(const auto &lib : this->usedlibs) {
+		lib.second.print(stream, indent);
+	}
+	scope.print(stream, indent);
 }
 
 void FileModule::registerUse(const UseNode &usenode) {

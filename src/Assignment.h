@@ -16,7 +16,7 @@ public:
 						 const Location &loc = Location::NONE)
 		: ASTNode(loc), name(name), expr(expr) { }
 	
-	virtual std::string dump(const std::string &indent) const;
+	virtual void print(std::ostream &stream, const std::string &indent) const;
 	
 	std::string name;
 	shared_ptr<class Expression> expr;
