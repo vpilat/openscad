@@ -28,6 +28,8 @@ public:
   ASTNode(const Location &loc) : loc(loc) {}
 	virtual ~ASTNode() {}
 
+	virtual std::string dump(const std::string &indent) const { return ""; }
+
 	const Location &location() const { return loc; }
 
 protected:

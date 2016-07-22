@@ -27,10 +27,10 @@ std::string LocalScope::dump(const std::string &indent) const
 {
 	std::stringstream dump;
 	for(const auto &f : this->functions) {
-		dump << f.second->dump(indent, f.first);
+		dump << f.second->dump(indent);
 	}
 	for(const auto &m : this->modules) {
-		dump << m.second->dump(indent, m.first);
+		dump << m.second->dump(indent);
 	}
 	for(const auto &ass : this->assignments) {
 		dump << ass.dump(indent);

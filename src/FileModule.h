@@ -16,7 +16,7 @@ public:
 	virtual ~FileModule();
 
 	virtual AbstractNode *instantiate(const Context *ctx, const ModuleInstantiation *inst, EvalContext *evalctx = NULL) const;
-	virtual std::string dump(const std::string &indent, const std::string &name) const;
+	virtual std::string dump(const std::string &indent) const;
 	AbstractNode *instantiateWithFileContext(class FileContext *ctx, const ModuleInstantiation *inst, EvalContext *evalctx) const;
 
 	const std::string &modulePath() const { return this->path; }

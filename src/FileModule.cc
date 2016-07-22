@@ -47,7 +47,7 @@ FileModule::~FileModule()
 {
 }
 
-std::string FileModule::dump(const std::string &indent, const std::string &name) const
+std::string FileModule::dump(const std::string &indent) const
 {
 	return scope.dump(indent);
 }

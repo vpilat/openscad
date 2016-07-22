@@ -51,7 +51,7 @@ ValuePtr UserFunction::evaluate(const Context *ctx, const EvalContext *evalctx) 
 	return result;
 }
 
-std::string UserFunction::dump(const std::string &indent, const std::string &name) const
+std::string UserFunction::dump(const std::string &indent) const
 {
 	std::stringstream dump;
 	dump << indent << "function " << name << "(";
@@ -131,11 +131,4 @@ BuiltinFunction::~BuiltinFunction()
 ValuePtr BuiltinFunction::evaluate(const Context *ctx, const EvalContext *evalctx) const
 {
 	return eval_func(ctx, evalctx);
-}
-
-std::string BuiltinFunction::dump(const std::string &indent, const std::string &name) const
-{
-	std::stringstream dump;
-	dump << indent << "builtin function " << name << "();\n";
-	return dump.str();
 }

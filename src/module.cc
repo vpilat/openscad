@@ -44,10 +44,3 @@ std::string AbstractModule::lookup_string_variable_with_default(Context &c, std:
 	ValuePtr v = c.lookup_variable(variable, true);
 	return (v->type() == Value::STRING) ? v->toString() : def;
 }
-
-std::string AbstractModule::dump(const std::string &indent, const std::string &name) const
-{
-	std::stringstream dump;
-	dump << indent << "abstract module " << name << "();\n";
-	return dump.str();
-}
