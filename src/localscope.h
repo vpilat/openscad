@@ -17,8 +17,8 @@ public:
 
 	AssignmentList assignments;
 	std::vector<ModuleInstantiation*> children;
-	typedef std::unordered_map<std::string, class AbstractFunction*> FunctionContainer;
+	typedef std::unordered_map<std::string, class UserFunction*> FunctionContainer;
 	FunctionContainer functions;
-	typedef std::unordered_map<std::string, class AbstractModule*> AbstractModuleContainer;
-	AbstractModuleContainer	modules;
+	typedef std::unordered_map<std::string, class UserModule*> ModuleContainer;
+	ModuleContainer	modules;
 };

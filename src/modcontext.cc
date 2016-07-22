@@ -79,10 +79,10 @@ void ModuleContext::initializeModule(const UserModule &module)
 //	evaluateAssignments(module.scope.assignments);
 }
 
-const AbstractFunction *ModuleContext::findLocalFunction(const std::string &name) const
+const UserFunction *ModuleContext::findLocalFunction(const std::string &name) const
 {
 	if (this->functions_p && this->functions_p->find(name) != this->functions_p->end()) {
-		AbstractFunction *f = this->functions_p->find(name)->second;
+		UserFunction *f = this->functions_p->find(name)->second;
 		if (!f->is_enabled()) {
 			PRINTB("WARNING: Experimental builtin function '%s' is not enabled.", name);
 			return NULL;
@@ -92,10 +92,10 @@ const AbstractFunction *ModuleContext::findLocalFunction(const std::string &name
 	return NULL;
 }
 
-const AbstractModule *ModuleContext::findLocalModule(const std::string &name) const
+const UserModule *ModuleContext::findLocalModule(const std::string &name) const
 {
 	if (this->modules_p && this->modules_p->find(name) != this->modules_p->end()) {
-		AbstractModule *m = this->modules_p->find(name)->second;
+		UserModule *m = this->modules_p->find(name)->second;
 		if (!m->is_enabled()) {
 			PRINTB("WARNING: Experimental builtin module '%s' is not enabled.", name);
 			return NULL;
@@ -112,7 +112,7 @@ const AbstractModule *ModuleContext::findLocalModule(const std::string &name) co
 ValuePtr ModuleContext::evaluate_function(const std::string &name, 
 																												 const EvalContext *evalctx) const
 {
-	const AbstractFunction *foundf = findLocalFunction(name);
+	const UserFunction *foundf = findLocalFunction(name);
 	if (foundf) return foundf->evaluate(this, evalctx);
 
 	return Context::evaluate_function(name, evalctx);
@@ -120,7 +120,7 @@ ValuePtr ModuleContext::evaluate_function(const std::string &name,
 
 AbstractNode *ModuleContext::instantiate_module(const ModuleInstantiation &inst, EvalContext *evalctx) const
 {
-	const AbstractModule *foundm = this->findLocalModule(inst.name());
+	const UserModule *foundm = this->findLocalModule(inst.name());
 	if (foundm) return foundm->instantiate(this, &inst, evalctx);
 
 	return Context::instantiate_module(inst, evalctx);

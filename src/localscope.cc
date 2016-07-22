@@ -4,6 +4,7 @@
 #include "ModuleInstantiation.h"
 #include "expression.h"
 #include "function.h"
+#include "UserModule.h"
 
 LocalScope::LocalScope()
 {

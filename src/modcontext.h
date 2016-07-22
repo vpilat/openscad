@@ -21,11 +21,11 @@ public:
 	virtual AbstractNode *instantiate_module(const ModuleInstantiation &inst, 
 																					 EvalContext *evalctx) const;
 
-	const AbstractModule *findLocalModule(const std::string &name) const;
-	const AbstractFunction *findLocalFunction(const std::string &name) const;
+	const UserModule *findLocalModule(const std::string &name) const;
+	const UserFunction *findLocalFunction(const std::string &name) const;
 
 	const LocalScope::FunctionContainer *functions_p;
-	const LocalScope::AbstractModuleContainer *modules_p;
+	const LocalScope::ModuleContainer *modules_p;
 
   // FIXME: Points to the eval context for the call to this module. Not sure where it belongs
 	const class EvalContext *evalctx;
