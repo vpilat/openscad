@@ -2,7 +2,6 @@
 
 #include <string>
 #include <vector>
-#include <utility>
 
 #include "AST.h"
 #include "memory.h"
@@ -16,6 +15,8 @@ public:
 						 shared_ptr<class Expression> expr = shared_ptr<class Expression>(),
 						 const Location &loc = Location::NONE)
 		: ASTNode(loc), name(name), expr(expr) { }
+	
+	virtual std::string dump(const std::string &indent) const;
 	
 	std::string name;
 	shared_ptr<class Expression> expr;

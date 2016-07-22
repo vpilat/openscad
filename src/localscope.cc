@@ -32,7 +32,7 @@ std::string LocalScope::dump(const std::string &indent) const
 		dump << m.second->dump(indent, m.first);
 	}
 	for(const auto &ass : this->assignments) {
-		dump << indent << ass.name << " = " << *ass.expr << ";\n";
+		dump << ass.dump(indent);
 	}
 	for(const auto &inst : this->children) {
 		dump << inst->dump(indent);
