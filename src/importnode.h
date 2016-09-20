@@ -6,6 +6,7 @@
 enum import_type_e {
 	TYPE_UNKNOWN,
 	TYPE_STL,
+	TYPE_3MF,
 	TYPE_OFF,
 	TYPE_SVG,
 	TYPE_DXF
@@ -28,3 +29,5 @@ public:
 	double width, height;
 	virtual const class Geometry *createGeometry() const;
 };
+
+Geometry * import_3mf(const std::string &filename);

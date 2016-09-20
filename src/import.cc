@@ -97,6 +97,7 @@ AbstractNode *ImportModule::instantiate(const Context *ctx, const ModuleInstanti
 		std::string extraw = fs::path(filename).extension().generic_string();
 		std::string ext = boost::algorithm::to_lower_copy(extraw);
 		if (ext == ".stl") actualtype = TYPE_STL;
+		else if (ext == ".3mf") actualtype = TYPE_3MF;
 		else if (ext == ".off") actualtype = TYPE_OFF;
 		else if (ext == ".dxf") actualtype = TYPE_DXF;
 		else if (Feature::ExperimentalSvgImport.is_enabled() && ext == ".svg") actualtype = TYPE_SVG;
@@ -148,6 +149,10 @@ const Geometry *ImportNode::createGeometry() const
 	case TYPE_STL: {
 		PolySet *p = import_stl(this->filename);
 		g = p;
+		break;
+	}
+	case TYPE_3MF: {
+		g = import_3mf(this->filename);
 		break;
 	}
 	case TYPE_OFF: {

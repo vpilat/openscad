@@ -182,6 +182,7 @@ CONFIG += glib-2.0
 CONFIG += harfbuzz
 CONFIG += freetype
 CONFIG += fontconfig
+CONFIG += lib3mf
 CONFIG += gettext
 CONFIG += libxml2
 
@@ -453,6 +454,7 @@ SOURCES += \
            src/import_stl.cc \
            src/import_off.cc \
            src/import_svg.cc \
+           src/import_3mf.cc \
            src/renderer.cc \
            src/colormap.cc \
            src/ThrownTogetherRenderer.cc \
