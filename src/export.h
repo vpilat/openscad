@@ -7,6 +7,7 @@
 
 enum FileFormat {
 	OPENSCAD_STL,
+	OPENSCAD_3MF,
 	OPENSCAD_OFF,
 	OPENSCAD_AMF,
 	OPENSCAD_DXF,
@@ -19,6 +20,7 @@ void exportFileByName(const shared_ptr<const class Geometry> &root_geom, FileFor
 											const char *name2open, const char *name2display);
 
 void export_stl(const shared_ptr<const Geometry> &geom, std::ostream &output);
+void export_3mf(const shared_ptr<const Geometry> &geom, std::ostream &output);
 void export_off(const shared_ptr<const Geometry> &geom, std::ostream &output);
 void export_amf(const shared_ptr<const Geometry> &geom, std::ostream &output);
 void export_dxf(const shared_ptr<const Geometry> &geom, std::ostream &output);

@@ -294,6 +294,7 @@
       <string>E&amp;xport</string>
      </property>
      <addaction name="fileActionExportSTL"/>
+     <addaction name="fileActionExport3MF"/>
      <addaction name="fileActionExportOFF"/>
      <addaction name="fileActionExportAMF"/>
      <addaction name="fileActionExportDXF"/>
@@ -1329,6 +1330,15 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+C</string>
+   </property>
+  </action>
+  <action name="fileActionExport3MF">
+   <property name="icon">
+    <iconset resource="../openscad.qrc">
+     <normaloff>:/images/3MF.png</normaloff>:/images/3MF.png</iconset>
+   </property>
+   <property name="text">
+    <string>Export as &amp;3MF...</string>
    </property>
   </action>
  </widget>

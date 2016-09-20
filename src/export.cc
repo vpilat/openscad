@@ -39,6 +39,9 @@ void exportFile(const shared_ptr<const Geometry> &root_geom, std::ostream &outpu
 	case OPENSCAD_STL:
 		export_stl(root_geom, output);
 		break;
+	case OPENSCAD_3MF:
+		export_3mf(root_geom, output);
+		break;
 	case OPENSCAD_OFF:
 		export_off(root_geom, output);
 		break;
