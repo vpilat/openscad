@@ -33,3 +33,14 @@ brew link --force gettext
 brew link --force qt5
 brew link --force qscintilla2
 
+# Install special packages not yet in upstream homebrew repo.
+# Check if there's already an active openscad tap and skip
+# tap/untap in that case.
+TAP=:
+if ! brew tap | grep ^openscad/ >/dev/null 2>/dev/null
+then
+	TAP=brew
+fi
+$TAP tap openscad/homebrew-tap
+brew install lib3mf
+$TAP untap openscad/homebrew-tap
