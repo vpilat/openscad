@@ -17,6 +17,8 @@ public:
         static const Feature ExperimentalEachExpression;
         static const Feature ExperimentalElseExpression;
         static const Feature ExperimentalForCExpression;
+        static const Feature Experimental3mfImport;
+        static const Feature Experimental3mfExport;
         static const Feature ExperimentalSvgImport;
 
 	const std::string& get_name() const;
