@@ -77,7 +77,7 @@ static void export_3mf_error(const std::string msg, PLib3MFModel *model = NULL)
  */
 static void append_3mf(const CGAL_Nef_polyhedron &root_N, std::ostream &output)
 {
-	if (!root_N.p3->is_simple()) {
+	if (!root_N.p3 || !root_N.p3->is_simple()) {
 		PRINT("WARNING: Export failed, the object isn't a valid 2-manifold.");
 		return;
 	}
