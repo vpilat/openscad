@@ -16,28 +16,30 @@ OPENSCAD_LIBRARIES_DIR = $$(OPENSCAD_LIBRARIES)
   !isEmpty(OPENSCAD_LIBRARIES_DIR) {
     exists($$OPENSCAD_LIBRARIES_DIR/include/lib3mf/Model/COM/NMR_DLLInterfaces.h) {
       LIB3MF_CFLAGS = -I$$OPENSCAD_LIBRARIES_DIR/include/lib3mf -I$$OPENSCAD_LIBRARIES_DIR/include/lib3mf/Model/COM
-      LIB3MF_LIBS = -L$$OPENSCAD_LIBRARIES_DIR/lib -l3MF
+      LIB3MF_LIBS = -L$$OPENSCAD_LIBRARIES_DIR/lib
     }
   }
   isEmpty(LIB3MF_CFLAGS) {
     exists(/opt/include/lib3mf/Model/COM/NMR_DLLInterfaces.h) {
       LIB3MF_CFLAGS = -I/opt/include/lib3mf -I/opt/include/lib3mf/Model/COM
-      LIB3MF_LIBS = -L/opt/lib -l3MF
+      LIB3MF_LIBS = -L/opt/lib
     }
     exists(/usr/local/include/lib3mf/Model/COM/NMR_DLLInterfaces.h) {
       LIB3MF_CFLAGS = -I/usr/local/include/lib3mf -I/usr/local/include/lib3mf/Model/COM
-      LIB3MF_LIBS = -L/usr/local/lib -l3MF
+      LIB3MF_LIBS = -L/usr/local/lib
     }
     exists(/usr/include/lib3mf/Model/COM/NMR_DLLInterfaces.h) {
       LIB3MF_CFLAGS = -I/usr/include/lib3mf -I/usr/include/lib3mf/Model/COM
-      LIB3MF_LIBS = -L/usr/lib -l3MF
+      LIB3MF_LIBS = -L/usr/lib
     }
   }
 }
 
 !isEmpty(LIB3MF_LIBPATH) {
-  LIB3MF_LIBS = -L$$LIB3MF_LIBPATH -l3MF
+  LIB3MF_LIBS = -L$$LIB3MF_LIBPATH
 }
+
+LIB3MF_LIBS += -l3MF
 
 !isEmpty(LIB3MF_CFLAGS):!isEmpty(LIB3MF_LIBS) {
   DEFINES += __GCC ENABLE_LIB3MF
