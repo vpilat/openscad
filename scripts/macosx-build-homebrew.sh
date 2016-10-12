@@ -15,23 +15,21 @@ printUsage()
   echo "Usage: $0"
 }
 
+log()
+{
+  echo "$(date):" "$@"
+}
+
 if [ ! -f $OPENSCADDIR/openscad.pro ]; then
   echo "Must be run from the OpenSCAD source root directory"
   exit 0
 fi
 
+log "Listing homebrew configuration"
+brew config
+
+log "Updating homebrew"
 brew update
-# FIXME: We used to require unlinking boost, but doing so also causes us to lose boost.
-# Disabling until we can figure out why we unlinked in the first place
-# brew unlink boost
-for formula in eigen boost cgal glew glib opencsg freetype libxml2 fontconfig harfbuzz qt5 qscintilla2 imagemagick; do
-  brew ls --versions $formula
-  brew install $formula
-  brew outdated $formula || brew upgrade $formula
-done
-brew link --force gettext
-brew link --force qt5
-brew link --force qscintilla2
 
 # Install special packages not yet in upstream homebrew repo.
 # Check if there's already an active openscad tap and skip
@@ -39,8 +37,25 @@ brew link --force qscintilla2
 TAP=:
 if ! brew tap | grep ^openscad/ >/dev/null 2>/dev/null
 then
+	log "Tapping openscad homebrew repo"
 	TAP=brew
 fi
 $TAP tap openscad/homebrew-tap
-brew install lib3mf
+
+# FIXME: We used to require unlinking boost, but doing so also causes us to lose boost.
+# Disabling until we can figure out why we unlinked in the first place
+# brew unlink boost
+for formula in eigen boost cgal glew glib opencsg freetype libxml2 fontconfig harfbuzz qt5 qscintilla2 imagemagick lib3mf; do
+  log "Installing formula $formula"
+  brew ls --versions $formula
+  brew install $formula
+  brew outdated $formula || brew upgrade $formula
+done
+
+for formula in gettext qt5 qscintilla2; do
+  log "Linking formula $formula"
+  brew link --force $formula
+done
+
 $TAP untap openscad/homebrew-tap
+
