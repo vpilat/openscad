@@ -32,6 +32,7 @@ public:
 
 	std::string dump(const std::string &indent) const;
 	const Location &location() const { return loc; }
+	void setLocation(const Location &loc) { this->loc = loc; }
 
 protected:
 	Location loc;

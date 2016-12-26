@@ -24,6 +24,7 @@
  *
  */
 #include <iostream>
+#include "comment.h"
 #include "openscad.h"
 #include "GeometryCache.h"
 #include "FileModule.h"
@@ -94,6 +95,13 @@
 #include <QClipboard>
 #include <QDesktopWidget>
 
+#if (QT_VERSION < QT_VERSION_CHECK(5, 0, 0))
+#include <QTextDocument>
+#define QT_HTML_ESCAPE(qstring) Qt::escape(qstring)
+#else
+#define QT_HTML_ESCAPE(qstring) (qstring).toHtmlEscaped()
+#endif
+
 #if (QT_VERSION < QT_VERSION_CHECK(5, 1, 0))
 // Set dummy for Qt versions that do not have QSaveFile
 #define QT_FILE_SAVE_CLASS QFile
@@ -128,7 +136,7 @@
 unsigned int GuiLocker::gui_locked = 0;
 
 static char copyrighttext[] =
-	"Copyright (C) 2009-2015 The OpenSCAD Developers\n"
+	"Copyright (C) 2009-2017 The OpenSCAD Developers\n"
 	"\n"
 	"This program is free software; you can redistribute it and/or modify "
 	"it under the terms of the GNU General Public License as published by "
@@ -177,11 +185,14 @@ MainWindow::MainWindow(const QString &filename)
 
 	editorDockTitleWidget = new QWidget();
 	consoleDockTitleWidget = new QWidget();
+	parameterDockTitleWidget = new QWidget();
 
 	this->editorDock->setConfigKey("view/hideEditor");
 	this->editorDock->setAction(this->viewActionHideEditor);
 	this->consoleDock->setConfigKey("view/hideConsole");
 	this->consoleDock->setAction(this->viewActionHideConsole);
+	this->parameterDock->setConfigKey("view/hideCustomizer");
+	this->parameterDock->setAction(this->viewActionHideParameters);
 
 	this->versionLabel = NULL; // must be initialized before calling updateStatusBar()
 	updateStatusBar(NULL);
@@ -249,6 +260,7 @@ MainWindow::MainWindow(const QString &filename)
 	knownFileExtensions["off"] = importStatement;
 	knownFileExtensions["dxf"] = importStatement;
 	if (Feature::ExperimentalSvgImport.is_enabled()) knownFileExtensions["svg"] = importStatement;
+	if (Feature::ExperimentalAmfImport.is_enabled()) knownFileExtensions["amf"] = importStatement;
 	knownFileExtensions["dat"] = surfaceStatement;
 	knownFileExtensions["png"] = surfaceStatement;
 	knownFileExtensions["scad"] = "";
@@ -275,7 +287,8 @@ MainWindow::MainWindow(const QString &filename)
 	waitAfterReloadTimer->setSingleShot(true);
 	waitAfterReloadTimer->setInterval(200);
 	connect(waitAfterReloadTimer, SIGNAL(timeout()), this, SLOT(waitAfterReload()));
-
+	connect(this->parameterWidget, SIGNAL(previewRequested()), this, SLOT(actionRenderPreview()));
+	connect(Preferences::inst(), SIGNAL(ExperimentalChanged()), this, SLOT(changeParameterWidget()));
 	connect(this->e_tval, SIGNAL(textChanged(QString)), this, SLOT(updatedAnimTval()));
 	connect(this->e_fps, SIGNAL(textChanged(QString)), this, SLOT(updatedAnimFps()));
 	connect(this->e_fsteps, SIGNAL(textChanged(QString)), this, SLOT(updatedAnimSteps()));
@@ -320,6 +333,7 @@ MainWindow::MainWindow(const QString &filename)
 
 	// Edit menu
 	connect(this->editActionUndo, SIGNAL(triggered()), editor, SLOT(undo()));
+    connect(editor, SIGNAL(contentsChanged()), this, SLOT(updateActionUndoState()));
 	connect(this->editActionRedo, SIGNAL(triggered()), editor, SLOT(redo()));
 	connect(this->editActionRedo_2, SIGNAL(triggered()), editor, SLOT(redo()));
 	connect(this->editActionCut, SIGNAL(triggered()), editor, SLOT(cut()));
@@ -408,7 +422,7 @@ MainWindow::MainWindow(const QString &filename)
 	connect(this->viewActionHideToolBars, SIGNAL(triggered()), this, SLOT(hideToolbars()));
 	connect(this->viewActionHideEditor, SIGNAL(triggered()), this, SLOT(hideEditor()));
 	connect(this->viewActionHideConsole, SIGNAL(triggered()), this, SLOT(hideConsole()));
-
+    connect(this->viewActionHideParameters, SIGNAL(triggered()), this, SLOT(hideParameters()));
 	// Help menu
 	connect(this->helpActionAbout, SIGNAL(triggered()), this, SLOT(helpAbout()));
 	connect(this->helpActionHomepage, SIGNAL(triggered()), this, SLOT(helpHomepage()));
@@ -458,9 +472,8 @@ MainWindow::MainWindow(const QString &filename)
 	this->setColorScheme(cs);
 
 	//find and replace panel
-	connect(this->findTypeComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(selectFindType(int)));
 	connect(this->findInputField, SIGNAL(textChanged(QString)), this, SLOT(findString(QString)));
-	connect(this->findInputField, SIGNAL(returnPressed()), this->nextButton, SLOT(animateClick()));
+        connect(this->findInputField, SIGNAL(returnPressed()), this->findNextButton, SLOT(animateClick()));
 	find_panel->installEventFilter(this);
 	if (QApplication::clipboard()->supportsFindBuffer()) {
 		connect(this->findInputField, SIGNAL(textChanged(QString)), this, SLOT(updateFindBuffer(QString)));
@@ -470,9 +483,9 @@ MainWindow::MainWindow(const QString &filename)
 		this->findInputField->setText(QApplication::clipboard()->text(QClipboard::FindBuffer));
 	}
 
-	connect(this->prevButton, SIGNAL(clicked()), this, SLOT(findPrev()));
-	connect(this->nextButton, SIGNAL(clicked()), this, SLOT(findNext()));
-	connect(this->hideFindButton, SIGNAL(clicked()), find_panel, SLOT(hide()));
+        connect(this->findPrevButton, SIGNAL(clicked()), this, SLOT(findPrev()));
+        connect(this->findNextButton, SIGNAL(clicked()), this, SLOT(findNext()));
+        connect(this->cancelButton, SIGNAL(clicked()), find_panel, SLOT(hide()));
 	connect(this->replaceButton, SIGNAL(clicked()), this, SLOT(replace()));
 	connect(this->replaceAllButton, SIGNAL(clicked()), this, SLOT(replaceAll()));
 	connect(this->replaceInputField, SIGNAL(returnPressed()), this->replaceButton, SLOT(animateClick()));
@@ -517,12 +530,19 @@ MainWindow::MainWindow(const QString &filename)
 	initActionIcon(editActionIndent, ":/images/Increase-Indent-32.png", ":/images/Increase-Indent-32-white.png");
 	initActionIcon(viewActionResetView, ":/images/Command-Reset-32.png", ":/images/Command-Reset-32-white.png");
 	initActionIcon(viewActionShowScaleProportional, ":/images/scalemarkers.png", ":/images/scalemarkers-white.png");
+
+	// fetch window states to be restored after restoreState() call
+	bool hideConsole = settings.value("view/hideConsole").toBool();
+	bool hideEditor = settings.value("view/hideEditor").toBool();
+	bool hideCustomizer = settings.value("view/hideCustomizer").toBool();
+	bool hideToolbar = settings.value("view/hideToolbar").toBool();
 	
 	// make sure it looks nice..
 	QByteArray windowState = settings.value("window/state", QByteArray()).toByteArray();
 	restoreState(windowState);
 	resize(settings.value("window/size", QSize(800, 600)).toSize());
 	move(settings.value("window/position", QPoint(0, 0)).toPoint());
+	updateWindowSettings(hideConsole, hideEditor, hideCustomizer, hideToolbar);
 
 	if (windowState.size() == 0) {
 		/*
@@ -560,7 +580,7 @@ MainWindow::MainWindow(const QString &filename)
 	
 	connect(this->editorDock, SIGNAL(topLevelChanged(bool)), this, SLOT(editorTopLevelChanged(bool)));
 	connect(this->consoleDock, SIGNAL(topLevelChanged(bool)), this, SLOT(consoleTopLevelChanged(bool)));
-	
+	connect(this->parameterDock, SIGNAL(topLevelChanged(bool)), this, SLOT(parameterTopLevelChanged(bool)));
 	// display this window and check for OpenGL 2.0 (OpenCSG) support
 	viewModeThrownTogether();
 	show();
@@ -602,7 +622,36 @@ void MainWindow::addKeyboardShortCut(const QList<QAction *> &actions)
 	}
 }
 
-void MainWindow::loadViewSettings(){
+void MainWindow::updateActionUndoState()
+{
+    editActionUndo->setEnabled(editor->canUndo());
+}
+
+/**
+ * Update window settings that get overwritten by the restoreState()
+ * Qt call. So the values are loaded before the call and restored here
+ * regardless of the (potential outdated) serialized state.
+ */
+void MainWindow::updateWindowSettings(bool console, bool editor, bool customizer, bool toolbar)
+{
+	viewActionHideConsole->setChecked(console);
+	hideConsole();
+	viewActionHideEditor->setChecked(editor);
+	hideEditor();
+	viewActionHideToolBars->setChecked(toolbar);
+	hideToolbars();
+
+	if (Feature::ExperimentalCustomizer.is_enabled()) {
+		viewActionHideParameters->setChecked(customizer);
+		hideParameters();
+	} else {
+		viewActionHideParameters->setChecked(true);
+		hideParameters();
+		viewActionHideParameters->setVisible(false);
+	}
+}
+
+void MainWindow::loadViewSettings() {
 	QSettings settings;
 	if (settings.value("view/showEdges").toBool()) {
 		viewActionShowEdges->setChecked(true);
@@ -625,12 +674,7 @@ void MainWindow::loadViewSettings(){
 	} else {
 		viewPerspective();
 	}
-	viewActionHideConsole->setChecked(settings.value("view/hideConsole").toBool());
-	hideConsole();
-	viewActionHideEditor->setChecked(settings.value("view/hideEditor").toBool());
-	hideEditor();
-	viewActionHideToolBars->setChecked(settings.value("view/hideToolbar").toBool());
-	hideToolbars();
+
 	updateMdiMode(settings.value("advanced/mdi").toBool());
 	updateUndockMode(settings.value("advanced/undockableWindows").toBool());
 	updateReorderMode(settings.value("advanced/reorderWindows").toBool());
@@ -661,6 +705,7 @@ void MainWindow::updateUndockMode(bool undockMode)
 	if (undockMode) {
 		editorDock->setFeatures(editorDock->features() | QDockWidget::DockWidgetFloatable);
 		consoleDock->setFeatures(consoleDock->features() | QDockWidget::DockWidgetFloatable);
+		parameterDock->setFeatures(parameterDock->features() | QDockWidget::DockWidgetFloatable);
 	} else {
 		if (editorDock->isFloating()) {
 			editorDock->setFloating(false);
@@ -670,6 +715,10 @@ void MainWindow::updateUndockMode(bool undockMode)
 			consoleDock->setFloating(false);
 		}
 		consoleDock->setFeatures(consoleDock->features() & ~QDockWidget::DockWidgetFloatable);
+		if (parameterDock->isFloating()) {
+			parameterDock->setFloating(false);
+		}
+		parameterDock->setFeatures(parameterDock->features() & ~QDockWidget::DockWidgetFloatable);
 	}
 }
 
@@ -678,6 +727,7 @@ void MainWindow::updateReorderMode(bool reorderMode)
 	MainWindow::reorderMode = reorderMode;
 	editorDock->setTitleBarWidget(reorderMode ? 0 : editorDockTitleWidget);
 	consoleDock->setTitleBarWidget(reorderMode ? 0 : consoleDockTitleWidget);
+	parameterDock->setTitleBarWidget(reorderMode ? 0 : parameterDockTitleWidget);
 }
 
 MainWindow::~MainWindow()
@@ -767,12 +817,15 @@ void MainWindow::setFileName(const QString &filename)
 		QFileInfo fileinfo(filename);
 		this->fileName = fileinfo.absoluteFilePath();
 		setWindowFilePath(this->fileName);
-
+		if (Feature::ExperimentalCustomizer.is_enabled()) {
+			this->parameterWidget->readFile(this->fileName);
+        	}
 		QDir::setCurrent(fileinfo.dir().absolutePath());
 		this->top_ctx.setDocumentPath(fileinfo.dir().absolutePath().toLocal8Bit().constData());
 	}
 	editorTopLevelChanged(editorDock->isFloating());
 	consoleTopLevelChanged(consoleDock->isFloating());
+ 	parameterTopLevelChanged(parameterDock->isFloating());
 }
 
 void MainWindow::updateRecentFiles()
@@ -1410,12 +1463,15 @@ void MainWindow::actionSaveAs()
 			// defaultSuffix property
 			QFileInfo info(new_filename);
 			if (info.exists()) {
-				if (QMessageBox::warning(this, windowTitle(),
+                if (QMessageBox::warning(this, windowTitle(),
 						 QString(_("%1 already exists.\nDo you want to replace it?")).arg(info.fileName()),
 						 QMessageBox::Yes | QMessageBox::No, QMessageBox::No) != QMessageBox::Yes) {
 					return;
 				}
 			}
+		}
+		if (Feature::ExperimentalCustomizer.is_enabled()) {
+			this->parameterWidget->writeFile(new_filename);
 		}
 		setFileName(new_filename);
 		actionSave();
@@ -1463,10 +1519,10 @@ void MainWindow::pasteViewportRotation()
 
 void MainWindow::find()
 {
-	findTypeComboBox->setCurrentIndex(0);
 	replaceInputField->hide();
 	replaceButton->hide();
 	replaceAllButton->hide();
+        replaceLabel->setVisible(false);
 	find_panel->show();
 	if (!editor->selectedText().isEmpty()) {
 		findInputField->setText(editor->selectedText());
@@ -1482,10 +1538,10 @@ void MainWindow::findString(QString textToFind)
 
 void MainWindow::findAndReplace()
 {
-	findTypeComboBox->setCurrentIndex(1);
 	replaceInputField->show();
 	replaceButton->show();
 	replaceAllButton->show();
+        replaceLabel->setVisible(true);
 	find_panel->show();
 	if (!editor->selectedText().isEmpty()) {
 		findInputField->setText(editor->selectedText());
@@ -1698,6 +1754,28 @@ void MainWindow::compileTopLevelDocument()
 	auto fnameba = this->fileName.toLocal8Bit();
 	const char* fname = this->fileName.isEmpty() ? "" : fnameba;
 	this->root_module = parse(fulltext.c_str(), fname, false);
+    
+	if (Feature::ExperimentalCustomizer.is_enabled()) {
+		if (this->root_module!=NULL) {
+			//add parameters as annotation in AST
+			CommentParser::collectParameters(fulltext.c_str(),this->root_module);
+		}
+		this->parameterWidget->setParameters(this->root_module);
+		this->parameterWidget->applyParameters(this->root_module);
+	}
+}
+
+void MainWindow::changeParameterWidget()
+{
+	if (Feature::ExperimentalCustomizer.is_enabled()) {
+		viewActionHideParameters->setVisible(true);
+	}
+	else {
+		viewActionHideParameters->setChecked(true);
+		hideParameters();
+		viewActionHideParameters->setVisible(false);
+	}
+	emit actionRenderPreview();
 }
 
 void MainWindow::checkAutoReload()
@@ -1711,9 +1789,9 @@ void MainWindow::autoReloadSet(bool on)
 {
 	QSettings settings;
 	settings.setValue("design/autoReload",designActionAutoReload->isChecked());
-	if (on) {
-		autoReloadTimer->start(200);
-	} else {
+    if (on) {
+        autoReloadTimer->start(200);
+    } else {
 		autoReloadTimer->stop();
 	}
 }
@@ -2431,6 +2509,11 @@ void MainWindow::on_consoleDock_visibilityChanged(bool)
 	consoleTopLevelChanged(consoleDock->isFloating());
 }
 
+void MainWindow::on_parameterDock_visibilityChanged(bool)
+{
+    parameterTopLevelChanged(parameterDock->isFloating());
+}
+
 void MainWindow::editorTopLevelChanged(bool topLevel)
 {
 	setDockWidgetTitle(editorDock, QString(_("Editor")), topLevel);
@@ -2439,6 +2522,11 @@ void MainWindow::editorTopLevelChanged(bool topLevel)
 void MainWindow::consoleTopLevelChanged(bool topLevel)
 {
 	setDockWidgetTitle(consoleDock, QString(_("Console")), topLevel);
+}
+
+void MainWindow::parameterTopLevelChanged(bool topLevel)
+{
+    setDockWidgetTitle(parameterDock, QString(_("Customizer")), topLevel);
 }
 
 void MainWindow::setDockWidgetTitle(QDockWidget *dockWidget, QString prefix, bool topLevel)
@@ -2489,6 +2577,15 @@ void MainWindow::hideConsole()
 	} else {
 		consoleDock->show();
 	}
+}
+
+void MainWindow::hideParameters()
+{
+    if (viewActionHideParameters->isChecked()) {
+        parameterDock->hide();
+    } else {
+        parameterDock->show();
+    }
 }
 
 void MainWindow::dragEnterEvent(QDragEnterEvent *event)
@@ -2665,10 +2762,10 @@ void MainWindow::consoleOutput(const QString &msg)
 	QString qmsg;
 	if (msg.startsWith("WARNING:") || msg.startsWith("DEPRECATED:")) {
 		this->compileWarnings++;
-		qmsg = "<html><span style=\"color: black; background-color: #ffffb0;\">" + msg + "</span></html>\n";
+		qmsg = "<html><span style=\"color: black; background-color: #ffffb0;\">" + QT_HTML_ESCAPE(QString(msg)) + "</span></html>\n";
 	} else if (msg.startsWith("ERROR:")) {
 		this->compileErrors++;
-		qmsg = "<html><span style=\"color: black; background-color: #ffb0b0;\">" + msg + "</span></html>\n";
+		qmsg = "<html><span style=\"color: black; background-color: #ffb0b0;\">" + QT_HTML_ESCAPE(QString(msg)) + "</span></html>\n";
 	}
 	else {
 		qmsg = msg;

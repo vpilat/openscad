@@ -92,6 +92,8 @@ fs::path parser_sourcefile;
 %token TOK_ELSE
 %token TOK_FOR
 %token TOK_LET
+%token TOK_ASSERT
+%token TOK_ECHO
 %token TOK_EACH
 
 %token <text> TOK_ID
@@ -106,6 +108,8 @@ fs::path parser_sourcefile;
 %token LE GE EQ NE AND OR
 
 %right LET
+%right LOW_PRIO_RIGHT
+%left LOW_PRIO_LEFT
 
 %right '?' ':'
 
@@ -120,11 +124,15 @@ fs::path parser_sourcefile;
 %left '[' ']'
 %left '.'
 
+%right HIGH_PRIO_RIGHT
+%left HIGH_PRIO_LEFT
+
 %type <expr> expr
 %type <vec> vector_expr
 %type <expr> list_comprehension_elements
 %type <expr> list_comprehension_elements_p
 %type <expr> list_comprehension_elements_or_expr
+%type <expr> expr_or_empty
 
 %type <inst> module_instantiation
 %type <ifelse> if_statement
@@ -192,9 +200,10 @@ assignment:
           TOK_ID '=' expr ';'
             {
                 bool found = false;
-                for (auto& iter : scope_stack.top()->assignments) {
-                    if (iter.name == $1) {
-                        iter.expr = shared_ptr<Expression>($3);
+                for (auto &assignment : scope_stack.top()->assignments) {
+                    if (assignment.name == $1) {
+                        assignment.expr = shared_ptr<Expression>($3);
+                        assignment.setLocation(LOC(@$));
                         found = true;
                         break;
                     }
@@ -292,6 +301,8 @@ module_id:
           TOK_ID  { $$ = $1; }
         | TOK_FOR { $$ = strdup("for"); }
         | TOK_LET { $$ = strdup("let"); }
+        | TOK_ASSERT { $$ = strdup("assert"); }
+        | TOK_ECHO { $$ = strdup("echo"); }
         | TOK_EACH { $$ = strdup("each"); }
         ;
 
@@ -335,11 +346,6 @@ expr:
         | TOK_NUMBER
             {
               $$ = new Literal(ValuePtr($1), LOC(@$));
-            }
-        | TOK_LET '(' arguments_call ')' expr %prec LET
-            {
-              $$ = new Let(*$3, $5, LOC(@$));
-              delete $3;
             }
         | '[' expr ':' expr ']'
             {
@@ -439,9 +445,35 @@ expr:
               free($1);
               delete $3;
             }
+        | TOK_LET '(' arguments_call ')' expr %prec LET
+            {
+              $$ = FunctionCall::create("let", *$3, $5, LOC(@$));
+              delete $3;
+            }
+        | TOK_ASSERT '(' arguments_call ')' expr_or_empty %prec LOW_PRIO_LEFT
+            {
+              $$ = FunctionCall::create("assert", *$3, $5, LOC(@$));
+              delete $3;
+            }
+        | TOK_ECHO '(' arguments_call ')' expr_or_empty %prec LOW_PRIO_LEFT
+            {
+              $$ = FunctionCall::create("echo", *$3, $5, LOC(@$));
+              delete $3;
+            }
         ;
 
-list_comprehension_elements:
+expr_or_empty:
+          %prec LOW_PRIO_LEFT
+            {
+              $$ = NULL;
+            }
+        | expr %prec HIGH_PRIO_LEFT
+            {
+              $$ = $1;
+            }
+        ;
+ 
+ list_comprehension_elements:
           /* The last set element may not be a "let" (as that would instead
              be parsed as an expression) */
           TOK_LET '(' arguments_call ')' list_comprehension_elements_p

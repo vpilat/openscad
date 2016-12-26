@@ -4,6 +4,7 @@
 #include "ModuleInstantiation.h"
 #include "expression.h"
 #include "function.h"
+#include "annotation.h"
 #include "UserModule.h"
 
 LocalScope::LocalScope()
@@ -25,16 +26,16 @@ void LocalScope::addChild(ModuleInstantiation *ch)
 
 void LocalScope::print(std::ostream &stream, const std::string &indent) const
 {
-	for(const auto &f : this->functions) {
+	for (const auto &f : this->functions) {
 		f.second->print(stream, indent);
 	}
-	for(const auto &m : this->modules) {
+	for (const auto &m : this->modules) {
 		m.second->print(stream, indent);
 	}
-	for(const auto &ass : this->assignments) {
+	for (const auto &ass : this->assignments) {
 		ass.print(stream, indent);
 	}
-	for(const auto &inst : this->children) {
+	for (const auto &inst : this->children) {
 		inst->print(stream, indent);
 	}
 }

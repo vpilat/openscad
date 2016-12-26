@@ -30,6 +30,9 @@
 #include "module.h"
 #include "ModuleInstantiation.h"
 #include "polyset.h"
+#ifdef ENABLE_CGAL
+#include "CGAL_Nef_polyhedron.h"
+#endif
 #include "Polygon2d.h"
 #include "evalcontext.h"
 #include "builtin.h"
@@ -49,6 +52,8 @@ using namespace boost::assign; // bring 'operator+=()' into scope
 #include <boost/detail/endian.hpp>
 #include <cstdint>
 
+extern PolySet * import_amf(std::string);
+	
 class ImportModule : public AbstractModule
 {
 public:
@@ -99,6 +104,8 @@ AbstractNode *ImportModule::instantiate(const Context *ctx, const ModuleInstanti
 		if (ext == ".stl") actualtype = TYPE_STL;
 		else if (ext == ".off") actualtype = TYPE_OFF;
 		else if (ext == ".dxf") actualtype = TYPE_DXF;
+		else if (ext == ".nef3") actualtype = TYPE_NEF3;
+		else if (Feature::ExperimentalAmfImport.is_enabled() && ext == ".amf") actualtype = TYPE_AMF;
 		else if (Feature::ExperimentalSvgImport.is_enabled() && ext == ".svg") actualtype = TYPE_SVG;
 	}
 
@@ -146,13 +153,15 @@ const Geometry *ImportNode::createGeometry() const
 
 	switch (this->type) {
 	case TYPE_STL: {
-		PolySet *p = import_stl(this->filename);
-		g = p;
+		g = import_stl(this->filename);
+		break;
+	}
+	case TYPE_AMF: {
+		g = import_amf(this->filename);
 		break;
 	}
 	case TYPE_OFF: {
-		PolySet *p = import_off(this->filename);
-		g = p;
+		g = import_off(this->filename);
 		break;
 	}
 	case TYPE_SVG: {
@@ -164,6 +173,12 @@ const Geometry *ImportNode::createGeometry() const
 		g = dd.toPolygon2d();
 		break;
 	}
+#ifdef ENABLE_CGAL
+	case TYPE_NEF3: {
+		g = import_nef3(this->filename);
+		break;
+	}
+#endif
 	default:
 		PRINTB("ERROR: Unsupported file format while trying to import file '%s'", this->filename);
 		g = new PolySet(0);

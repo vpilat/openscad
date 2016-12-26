@@ -13,8 +13,7 @@ class Expression : public ASTNode
 public:
 	Expression(const Location &loc) : ASTNode(loc) {}
 	virtual ~Expression() {}
-
-	virtual bool isListComprehension() const;
+    virtual bool isLiteral() const;
 	virtual ValuePtr evaluate(const class Context *context) const = 0;
 };
 
@@ -25,7 +24,7 @@ public:
 		Not,
 		Negate
 	};
-
+    virtual bool isLiteral() const;
 	UnaryOp(Op op, Expression *expr, const Location &loc);
 	virtual ValuePtr evaluate(const class Context *context) const;
 	virtual void print(std::ostream &stream, const std::string &indent) const;
@@ -97,6 +96,7 @@ public:
 	Literal(const ValuePtr &val, const Location &loc = Location::NONE);
 	ValuePtr evaluate(const class Context *) const;
 	virtual void print(std::ostream &stream, const std::string &indent) const;
+	virtual bool isLiteral() const { return true;}
 private:
 	ValuePtr value;
 };
@@ -108,6 +108,7 @@ public:
 	Range(Expression *begin, Expression *step, Expression *end, const Location &loc);
 	ValuePtr evaluate(const class Context *context) const;
 	virtual void print(std::ostream &stream, const std::string &indent) const;
+	virtual bool isLiteral() const;
 private:
 	shared_ptr<Expression> begin;
 	shared_ptr<Expression> step;
@@ -121,6 +122,7 @@ public:
 	ValuePtr evaluate(const class Context *context) const;
 	virtual void print(std::ostream &stream, const std::string &indent) const;
 	void push_back(Expression *expr);
+    virtual bool isLiteral() const ;
 private:
 	std::vector<shared_ptr<Expression>> children;
 };
@@ -152,9 +154,32 @@ public:
 	FunctionCall(const std::string &funcname, const AssignmentList &arglist, const Location &loc);
 	ValuePtr evaluate(const class Context *context) const;
 	virtual void print(std::ostream &stream, const std::string &indent) const;
+	static Expression * create(const std::string &funcname, const AssignmentList &arglist, Expression *expr, const Location &loc);
 public:
 	std::string name;
 	AssignmentList arguments;
+};
+
+class Assert : public Expression
+{
+public:
+	Assert(const AssignmentList &args, Expression *expr, const Location &loc);
+	ValuePtr evaluate(const class Context *context) const;
+	virtual void print(std::ostream &stream, const std::string &indent) const;
+private:
+	AssignmentList arguments;
+	shared_ptr<Expression> expr;
+};
+
+class Echo : public Expression
+{
+public:
+	Echo(const AssignmentList &args, Expression *expr, const Location &loc);
+	ValuePtr evaluate(const class Context *context) const;
+	virtual void print(std::ostream &stream, const std::string &indent) const;
+private:
+	AssignmentList arguments;
+	shared_ptr<Expression> expr;
 };
 
 class Let : public Expression
@@ -170,7 +195,6 @@ private:
 
 class ListComprehension : public Expression
 {
-	virtual bool isListComprehension() const;
 public:
 	ListComprehension(const Location &loc);
 	~ListComprehension() = default;
@@ -232,3 +256,5 @@ private:
 	AssignmentList arguments;
 	shared_ptr<Expression> expr;
 };
+
+void evaluate_assert(const Context &context, const class EvalContext *evalctx, const Location &loc);
