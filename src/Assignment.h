@@ -20,13 +20,13 @@ public:
 	
 	virtual void print(std::ostream &stream, const std::string &indent) const;
 
-	std::string name;
-	shared_ptr<class Expression> expr;
-
 	virtual void addAnnotations(AnnotationList *annotations);
 	virtual bool hasAnnotations() const;
 	virtual const Annotation *annotation(const std::string &name) const;
 
+	// FIXME: Make protected
+	std::string name;
+	shared_ptr<class Expression> expr;
 protected:
 	AnnotationMap annotations;
 };
