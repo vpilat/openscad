@@ -15,10 +15,11 @@ public:
 	FileModule(const std::string &path, const std::string &filename);
 	virtual ~FileModule();
 
-	virtual AbstractNode *instantiate(const Context *ctx, const ModuleInstantiation *inst, EvalContext *evalctx = NULL) const;
+	virtual AbstractNode *instantiate(const Context *ctx, const ModuleInstantiation *inst, EvalContext *evalctx = nullptr) const;
 	virtual void print(std::ostream &stream, const std::string &indent) const;
 	AbstractNode *instantiateWithFileContext(class FileContext *ctx, const ModuleInstantiation *inst, EvalContext *evalctx) const;
 
+	void setModulePath(const std::string &path) { this->path = path; }
 	const std::string &modulePath() const { return this->path; }
 	void registerUse(const UseNode &usenode);
 	void registerInclude(const std::string &localpath, const std::string &fullpath);

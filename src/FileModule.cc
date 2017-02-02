@@ -31,6 +31,7 @@
 #include "exceptions.h"
 #include "modcontext.h"
 #include "parsersettings.h"
+#include "StatCache.h"
 
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
@@ -74,16 +75,14 @@ void FileModule::registerUse(const UseNode &usenode) {
 void FileModule::registerInclude(const std::string &localpath,
 																 const std::string &fullpath)
 {
-	struct stat st;
-	memset(&st, 0, sizeof(struct stat));
+	struct stat st{};
 	bool valid = stat(fullpath.c_str(), &st) == 0;
-	IncludeFile inc = {fullpath, valid, st.st_mtime};
-	this->includes[localpath] = inc;
+	this->includes[localpath] = {fullpath, valid, st.st_mtime};
 }
 
 bool FileModule::includesChanged() const
 {
-	for(const auto &item : this->includes) {
+	for (const auto &item : this->includes) {
 		if (include_modified(item.second)) return true;
 	}
 	return false;
@@ -91,12 +90,9 @@ bool FileModule::includesChanged() const
 
 bool FileModule::include_modified(const IncludeFile &inc) const
 {
-	struct stat st;
-	memset(&st, 0, sizeof(struct stat));
+	struct stat st{};
 
-	fs::path fullpath = find_valid_path(this->path, inc.filename);
-	bool valid = !fullpath.empty() ? (stat(fullpath.generic_string().c_str(), &st) == 0) : false;
-	
+	bool valid = (StatCache::stat(inc.filename.c_str(), &st) == 0);
 	if (valid && !inc.valid) return true; // Detect appearance of file but not removal
 	if (valid && st.st_mtime > inc.mtime) return true;
 	
@@ -118,10 +114,9 @@ bool FileModule::handleDependencies()
 	// If a lib in usedlibs was previously missing, we need to relocate it
 	// by searching the applicable paths. We can identify a previously missing module
 	// as it will have a relative path.
-	for(const auto &lib : this->usedlibs) {
+	for (const auto &lib : this->usedlibs) {
 		std::string filename = lib.first;
 		const auto &usenode = lib.second;
-		
 		bool wasmissing = false;
 		bool found = true;
 
@@ -148,6 +143,9 @@ bool FileModule::handleDependencies()
 			if (changed) {
 				PRINTDB("  %s: %p -> %p", filename % oldmodule % newmodule);
 			}
+			else {
+				PRINTDB("  %s: %p", filename % oldmodule);
+			}
 			somethingchanged |= changed;
 			// Only print warning if we're not part of an automatic reload
 			if (!newmodule && !wascached && !wasmissing) {
@@ -156,9 +154,9 @@ bool FileModule::handleDependencies()
 		}
 	}
 
-	// Relative filenames which were located is reinserted as absolute filenames
+	// Relative filenames which were located are reinserted as absolute filenames
 	typedef std::pair<std::string,std::string> stringpair;
-	for(const auto &files : updates) {
+	for (const auto &files : updates) {
 		this->usedlibs.insert({files.second, this->usedlibs.at(files.first)});
 		this->usedlibs.erase(files.first);
 	}
@@ -166,17 +164,19 @@ bool FileModule::handleDependencies()
 	return somethingchanged;
 }
 
-AbstractNode *FileModule::instantiate(const Context *ctx, const ModuleInstantiation *inst, EvalContext *evalctx) const
+AbstractNode *FileModule::instantiate(const Context *ctx, const ModuleInstantiation *inst,
+																			EvalContext *evalctx) const
 {
-	assert(evalctx == NULL);
+	assert(evalctx == nullptr);
 	
 	FileContext context(ctx);
 	return this->instantiateWithFileContext(&context, inst, evalctx);
 }
 
-AbstractNode *FileModule::instantiateWithFileContext(FileContext *ctx, const ModuleInstantiation *inst, EvalContext *evalctx) const
+AbstractNode *FileModule::instantiateWithFileContext(FileContext *ctx, const ModuleInstantiation *inst,
+																										 EvalContext *evalctx) const
 {
-	assert(evalctx == NULL);
+	assert(evalctx == nullptr);
 	
 	AbstractNode *node = new RootNode(inst);
 	try {
