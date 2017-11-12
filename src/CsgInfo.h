@@ -9,8 +9,8 @@
 #include "printutils.h"
 
 /*
-	Small helper class for compiling and normalizing node trees into CSG products
-*/
+   Small helper class for compiling and normalizing node trees into CSG products
+ */
 class CsgInfo
 {
 public:
@@ -24,8 +24,8 @@ public:
 		GeometryEvaluator geomevaluator(tree);
 		CSGTreeEvaluator evaluator(tree, &geomevaluator);
 		shared_ptr<CSGNode> csgRoot = evaluator.buildCSGTree(*root_node);
-		std::vector<shared_ptr<CSGNode> > highlightNodes = evaluator.getHighlightNodes();
-		std::vector<shared_ptr<CSGNode> > backgroundNodes = evaluator.getBackgroundNodes();
+		std::vector<shared_ptr<CSGNode>> highlightNodes = evaluator.getHighlightNodes();
+		std::vector<shared_ptr<CSGNode>> backgroundNodes = evaluator.getBackgroundNodes();
 
 		PRINT("Compiling design (CSG Products normalization)...");
 		CSGTreeNormalizer normalizer(RenderSettings::inst()->openCSGTermLimit);
@@ -43,7 +43,7 @@ public:
 		}
 
 		if (highlightNodes.size() > 0) {
-			PRINTB("Compiling highlights (%i CSG Trees)...", highlightNodes.size() );
+			PRINTB("Compiling highlights (%i CSG Trees)...", highlightNodes.size());
 			this->highlights_products.reset(new CSGProducts());
 			for (unsigned int i = 0; i < highlightNodes.size(); i++) {
 				highlightNodes[i] = normalizer.normalize(highlightNodes[i]);

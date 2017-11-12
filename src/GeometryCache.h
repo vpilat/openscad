@@ -6,8 +6,8 @@
 
 class GeometryCache
 {
-public:	
-	GeometryCache(size_t memorylimit = 100*1024*1024) : cache(memorylimit) {}
+public:
+	GeometryCache(size_t memorylimit = 100 *1024 *1024) : cache(memorylimit) {}
 
 	static GeometryCache *instance() { if (!inst) inst = new GeometryCache; return inst; }
 

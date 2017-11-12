@@ -74,7 +74,7 @@ const std::string &FontInfo::get_file() const
 	return file;
 }
 
-FontCache * FontCache::self = nullptr;
+FontCache *FontCache::self = nullptr;
 FontCache::InitHandlerFunc *FontCache::cb_handler = FontCache::defaultInitHandler;
 void *FontCache::cb_userdata = nullptr;
 const std::string FontCache::DEFAULT_FONT("Liberation Sans:style=Regular");
@@ -160,7 +160,7 @@ FontCache::~FontCache()
 {
 }
 
-FontCache * FontCache::instance()
+FontCache *FontCache::instance()
 {
 	if (!self) {
 		self = new FontCache();
@@ -176,7 +176,7 @@ void FontCache::registerProgressHandler(InitHandlerFunc *handler, void *userdata
 
 void FontCache::register_font_file(const std::string &path)
 {
-	if (!FcConfigAppFontAddFile(this->config, reinterpret_cast<const FcChar8 *> (path.c_str()))) {
+	if (!FcConfigAppFontAddFile(this->config, reinterpret_cast<const FcChar8 *>(path.c_str()))) {
 		PRINTB("Can't register font '%s'", path);
 	}
 }
@@ -186,7 +186,7 @@ void FontCache::add_font_dir(const std::string &path)
 	if (!fs::is_directory(path)) {
 		return;
 	}
-	if (!FcConfigAppFontAddDir(this->config, reinterpret_cast<const FcChar8 *> (path.c_str()))) {
+	if (!FcConfigAppFontAddDir(this->config, reinterpret_cast<const FcChar8 *>(path.c_str()))) {
 		PRINTB("Can't register font directory '%s'", path);
 	}
 }
@@ -267,7 +267,8 @@ FT_Face FontCache::get_font(const std::string &font)
 			return nullptr;
 		}
 		check_cleanup();
-	} else {
+	}
+	else {
 		face = (*it).second.first;
 	}
 	this->cache[font] = cache_entry_t(face, time(nullptr));
@@ -317,7 +318,7 @@ FT_Face FontCache::find_face_fontconfig(const std::string &font) const
 	if (FcPatternGet(match, FC_INDEX, 0, &font_index)) {
 		return nullptr;
 	}
-	
+
 	FT_Face face;
 	FT_Error error = FT_New_Face(this->library, (const char *) file_value.u.s, font_index.u.i, &face);
 
@@ -331,26 +332,19 @@ FT_Face FontCache::find_face_fontconfig(const std::string &font) const
 
 	if (FT_Select_Charmap(face, ft_encoding_unicode) == 0) {
 		PRINTDB("Successfully selected unicode charmap: %s/%s", face->family_name % face->style_name);
-	} else {
-		bool charmap_set = false;
-		if (!charmap_set)
-			charmap_set = try_charmap(face, TT_PLATFORM_MICROSOFT, TT_MS_ID_UNICODE_CS);
-		if (!charmap_set)
-			charmap_set = try_charmap(face, TT_PLATFORM_ISO, TT_ISO_ID_10646);
-		if (!charmap_set)
-			charmap_set = try_charmap(face, TT_PLATFORM_APPLE_UNICODE, -1);
-		if (!charmap_set)
-			charmap_set = try_charmap(face, TT_PLATFORM_MICROSOFT, TT_MS_ID_SYMBOL_CS);
-		if (!charmap_set)
-			charmap_set = try_charmap(face, TT_PLATFORM_MACINTOSH, TT_MAC_ID_ROMAN);
-		if (!charmap_set)
-			charmap_set = try_charmap(face, TT_PLATFORM_ISO, TT_ISO_ID_8859_1);
-		if (!charmap_set)
-			charmap_set = try_charmap(face, TT_PLATFORM_ISO, TT_ISO_ID_7BIT_ASCII);
-		if (!charmap_set)
-			PRINTB("Warning: Could not select a char map for font %s/%s", face->family_name % face->style_name);
 	}
-	
+	else {
+		bool charmap_set = false;
+		if (!charmap_set) charmap_set = try_charmap(face, TT_PLATFORM_MICROSOFT, TT_MS_ID_UNICODE_CS);
+		if (!charmap_set) charmap_set = try_charmap(face, TT_PLATFORM_ISO, TT_ISO_ID_10646);
+		if (!charmap_set) charmap_set = try_charmap(face, TT_PLATFORM_APPLE_UNICODE, -1);
+		if (!charmap_set) charmap_set = try_charmap(face, TT_PLATFORM_MICROSOFT, TT_MS_ID_SYMBOL_CS);
+		if (!charmap_set) charmap_set = try_charmap(face, TT_PLATFORM_MACINTOSH, TT_MAC_ID_ROMAN);
+		if (!charmap_set) charmap_set = try_charmap(face, TT_PLATFORM_ISO, TT_ISO_ID_8859_1);
+		if (!charmap_set) charmap_set = try_charmap(face, TT_PLATFORM_ISO, TT_ISO_ID_7BIT_ASCII);
+		if (!charmap_set) PRINTB("Warning: Could not select a char map for font %s/%s", face->family_name % face->style_name);
+	}
+
 	return error ? nullptr : face;
 }
 
@@ -386,6 +380,6 @@ bool FontCache::is_windows_symbol_font(const FT_Face &face) const
 	if ((gindex == 0) || (charcode < 0xf000)) {
 		return false;
 	}
-	
+
 	return true;
 }

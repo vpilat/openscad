@@ -7,7 +7,7 @@ ParameterVirtualWidget::ParameterVirtualWidget(QWidget *parent) : QWidget(parent
 }
 
 ParameterVirtualWidget::~ParameterVirtualWidget(){
-	
+
 }
 
 
@@ -19,8 +19,8 @@ void ParameterVirtualWidget::setName(QString name) {
 }
 
 void ParameterVirtualWidget::addInline(QString addTxt) {
-	if(addTxt!=""){
-		this->labelInline->setText(" - "+ addTxt);
+	if (addTxt != "") {
+		this->labelInline->setText(" - " + addTxt);
 	}
 }
 
@@ -31,7 +31,7 @@ void ParameterVirtualWidget::setPrecision(double number){
 	long double diff, rn; //rn stands for real number
 	unsigned long long intNumber, multi = 1;
 	number = std::abs(number);
-	while(1) {
+	while (1) {
 		rn = (number * multi);
 		intNumber = rn;  //the fractional part will be truncated here
 		diff = rn - intNumber;

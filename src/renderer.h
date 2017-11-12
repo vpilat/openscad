@@ -16,7 +16,7 @@ public:
 	virtual ~Renderer() {}
 	virtual void draw(bool showfaces, bool showedges) const = 0;
 	virtual BoundingBox getBoundingBox() const = 0;
-	
+
 #define CSGMODE_DIFFERENCE_FLAG 0x10
 	enum csgmode_e {
 		CSGMODE_NONE                  = 0x00,
@@ -51,6 +51,6 @@ public:
 	static void render_edges(shared_ptr<const Geometry> geom, csgmode_e csgmode);
 
 protected:
-	std::map<ColorMode,Color4f> colormap;
+	std::map<ColorMode, Color4f> colormap;
 	const ColorScheme *colorscheme;
 };

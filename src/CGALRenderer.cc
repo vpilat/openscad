@@ -24,7 +24,7 @@
  *
  */
 
-#ifdef _MSC_VER 
+#ifdef _MSC_VER
 // Boost conflicts with MPFR under MSVC (google it)
 #include <mpfr.h>
 #endif
@@ -47,7 +47,7 @@ CGALRenderer::CGALRenderer(shared_ptr<const class Geometry> geom)
 	if (auto ps = dynamic_pointer_cast<const PolySet>(geom)) {
 		assert(ps->getDimension() == 3);
 		// We need to tessellate here, in case the generated PolySet contains concave polygons
-    // See testdata/scad/3D/features/polyhedron-concave-test.scad
+		// See testdata/scad/3D/features/polyhedron-concave-test.scad
 		auto ps_tri = new PolySet(3, ps->convexValue());
 		ps_tri->setConvexity(ps->getConvexity());
 		PolysetUtils::tessellate_faces(*ps, *ps_tri);
@@ -105,15 +105,15 @@ void CGALRenderer::draw(bool showfaces, bool showedges) const
 // FIXME:		const QColor &col = Preferences::inst()->color(Preferences::CGAL_FACE_2D_COLOR);
 			glColor3f(0.0f, 0.75f, 0.60f);
 
-			for (size_t i=0; i < this->polyset->polygons.size(); i++) {
+			for (size_t i = 0; i < this->polyset->polygons.size(); i++) {
 				glBegin(GL_POLYGON);
-				for (size_t j=0; j < this->polyset->polygons[i].size(); j++) {
+				for (size_t j = 0; j < this->polyset->polygons[i].size(); j++) {
 					const auto &p = this->polyset->polygons[i][j];
 					glVertex3d(p[0], p[1], 0);
 				}
 				glEnd();
 			}
-		
+
 			// Draw 2D edges
 			glDisable(GL_DEPTH_TEST);
 
@@ -125,7 +125,7 @@ void CGALRenderer::draw(bool showfaces, bool showedges) const
 		}
 		else {
 			// Draw 3D polygons
-			const Color4f c(-1,-1,-1,-1);	
+			const Color4f c(-1, -1, -1, -1);
 			setColor(ColorMode::MATERIAL, c.data(), nullptr);
 			this->polyset->render_surface(CSGMODE_NORMAL, Transform3d::Identity(), nullptr);
 		}
@@ -154,8 +154,8 @@ BoundingBox CGALRenderer::getBoundingBox() const
 		if (polyhedron) {
 			auto cgalbbox = polyhedron->bbox();
 			bbox = BoundingBox(
-				Vector3d(cgalbbox.xmin(), cgalbbox.ymin(), cgalbbox.zmin()),
-				Vector3d(cgalbbox.xmax(), cgalbbox.ymax(), cgalbbox.zmax()));
+					Vector3d(cgalbbox.xmin(), cgalbbox.ymin(), cgalbbox.zmin()),
+					Vector3d(cgalbbox.xmax(), cgalbbox.ymax(), cgalbbox.zmax()));
 		}
 	}
 	return bbox;

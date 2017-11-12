@@ -63,22 +63,25 @@ void exportFile(const shared_ptr<const Geometry> &root_geom, std::ostream &outpu
 }
 
 void exportFileByName(const shared_ptr<const Geometry> &root_geom, FileFormat format,
-	const char *name2open, const char *name2display)
+											const char *name2open, const char *name2display)
 {
 	std::ofstream fstream(name2open);
 	if (!fstream.is_open()) {
 		PRINTB(_("Can't open file \"%s\" for export"), name2display);
-	} else {
+	}
+	else {
 		bool onerror = false;
-		fstream.exceptions(std::ios::badbit|std::ios::failbit);
+		fstream.exceptions(std::ios::badbit | std::ios::failbit);
 		try {
 			exportFile(root_geom, fstream, format);
-		} catch (std::ios::failure x) {
+		}
+		catch (std::ios::failure x) {
 			onerror = true;
 		}
 		try { // make sure file closed - resources released
 			fstream.close();
-		} catch (std::ios::failure x) {
+		}
+		catch (std::ios::failure x) {
 			onerror = true;
 		}
 		if (onerror) {

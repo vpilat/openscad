@@ -15,5 +15,5 @@ protected slots:
 	void onChanged(int idx);
 
 private:
-	bool volatile suppressUpdate; 
+	bool volatile suppressUpdate;
 };

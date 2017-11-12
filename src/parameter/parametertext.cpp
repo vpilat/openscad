@@ -10,19 +10,22 @@ ParameterText::ParameterText(ParameterObject *parameterobject, int showDescripti
 	connect(lineEdit, SIGNAL(textChanged(QString)), this, SLOT(onChanged(QString)));
 	if (showDescription == 0) {
 		setDescription(object->description);
-	}else if(showDescription == 1){
+	}
+	else if (showDescription == 1) {
 		addInline(object->description);
-	}else {
+	}
+	else {
 		lineEdit->setToolTip(object->description);
 	}
 }
 
 void ParameterText::onChanged(QString)
 {
-	if(!suppressUpdate){
+	if (!suppressUpdate) {
 		if (object->dvt == Value::ValueType::STRING) {
 			object->value = ValuePtr(lineEdit->text().toStdString());
-		}else{
+		}
+		else {
 			ModuleContext ctx;
 			shared_ptr<Expression> params = CommentParser::parser(lineEdit->text().toStdString().c_str());
 			if (!params) return;
@@ -44,7 +47,7 @@ void ParameterText::setParameterFocus()
 
 void ParameterText::setValue()
 {
-	suppressUpdate=true;
+	suppressUpdate = true;
 	this->stackedWidgetBelow->setCurrentWidget(this->pageText);
 	this->pageText->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
 	this->stackedWidgetRight->hide();
@@ -52,5 +55,5 @@ void ParameterText::setValue()
 	if (object->values->toDouble() > 0) {
 		this->lineEdit->setMaxLength(object->values->toDouble());
 	}
-	suppressUpdate=false;
+	suppressUpdate = false;
 }

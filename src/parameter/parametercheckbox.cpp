@@ -7,12 +7,14 @@ ParameterCheckBox::ParameterCheckBox(ParameterObject *parameterobject, int showD
 	setValue();
 	connect(checkBox, SIGNAL(clicked()), this, SLOT(onChanged()));
 
-	if (showDescription == 0){
+	if (showDescription == 0) {
 		setDescription(object->description);
-	}else if(showDescription == 1){
+	}
+	else if (showDescription == 1) {
 		addInline(object->description);
 		checkBox->setStyleSheet(""); //small checkbox, when description not shown
-	}else{
+	}
+	else {
 		checkBox->setToolTip(object->description);
 		checkBox->setStyleSheet(""); //small checkbox, when description not shown
 	}
@@ -20,7 +22,7 @@ ParameterCheckBox::ParameterCheckBox(ParameterObject *parameterobject, int showD
 
 void ParameterCheckBox::onChanged()
 {
-	if(!suppressUpdate){
+	if (!suppressUpdate) {
 		object->focus = true;
 		object->value = ValuePtr(checkBox->isChecked());
 		emit changed();
@@ -34,10 +36,10 @@ void ParameterCheckBox::setParameterFocus()
 }
 
 void ParameterCheckBox::setValue() {
-	suppressUpdate=true;
+	suppressUpdate = true;
 	this->stackedWidgetRight->setCurrentWidget(this->pageCheckBox);
-	this->pageCheckBox->setSizePolicy(QSizePolicy::Maximum,QSizePolicy::Expanding);
+	this->pageCheckBox->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Expanding);
 	this->stackedWidgetBelow->hide();
 	this->checkBox->setChecked(object->value->toBool());
-	suppressUpdate=false;
+	suppressUpdate = false;
 }

@@ -25,8 +25,9 @@ bool export_png(const shared_ptr<const Geometry> &root_geom, Camera &cam, std::o
 	OffscreenView *glview;
 	try {
 		glview = new OffscreenView(cam.pixel_width, cam.pixel_height);
-	} catch (int error) {
-		fprintf(stderr,"Can't create OpenGL OffscreenView. Code: %i.\n", error);
+	}
+	catch (int error) {
+		fprintf(stderr, "Can't create OpenGL OffscreenView. Code: %i.\n", error);
 		return false;
 	}
 	CGALRenderer cgalRenderer(root_geom);
@@ -59,8 +60,9 @@ bool export_png_preview_common(Tree &tree, Camera &cam, std::ostream &output, Pr
 	OffscreenView *glview;
 	try {
 		glview = new OffscreenView(cam.pixel_width, cam.pixel_height);
-	} catch (int error) {
-		fprintf(stderr,"Can't create OpenGL OffscreenView. Code: %i.\n", error);
+	}
+	catch (int error) {
+		fprintf(stderr, "Can't create OpenGL OffscreenView. Code: %i.\n", error);
 		return false;
 	}
 
@@ -70,11 +72,10 @@ bool export_png_preview_common(Tree &tree, Camera &cam, std::ostream &output, Pr
 	ThrownTogetherRenderer thrownTogetherRenderer(csgInfo.root_products, csgInfo.highlights_products, csgInfo.background_products);
 
 #ifdef ENABLE_OPENCSG
-	if (previewer == Previewer::OPENCSG)
-		glview->setRenderer(&openCSGRenderer);
+	if (previewer == Previewer::OPENCSG) glview->setRenderer(&openCSGRenderer);
 	else
 #endif
-		glview->setRenderer(&thrownTogetherRenderer);
+	glview->setRenderer(&thrownTogetherRenderer);
 #ifdef ENABLE_OPENCSG
 	BoundingBox bbox = glview->getRenderer()->getBoundingBox();
 	setupCamera(cam, bbox);
@@ -95,7 +96,7 @@ bool export_png_with_opencsg(Tree &tree, Camera &cam, std::ostream &output)
 #ifdef ENABLE_OPENCSG
 	return export_png_preview_common(tree, cam, output, Previewer::OPENCSG);
 #else
-	fprintf(stderr,"This openscad was built without OpenCSG support\n");
+	fprintf(stderr, "This openscad was built without OpenCSG support\n");
 	return false;
 #endif
 }

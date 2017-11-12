@@ -18,7 +18,7 @@ LocalScope::~LocalScope()
 	for (auto &m : modules) delete m.second;
 }
 
-void LocalScope::addChild(ModuleInstantiation *modinst) 
+void LocalScope::addChild(ModuleInstantiation *modinst)
 {
 	assert(modinst);
 	this->children.push_back(modinst);
@@ -69,10 +69,10 @@ std::string LocalScope::dump(const std::string &indent) const
 	return dump.str();
 }
 
-std::vector<AbstractNode*> LocalScope::instantiateChildren(const Context *evalctx) const
+std::vector<AbstractNode *> LocalScope::instantiateChildren(const Context *evalctx) const
 {
-	std::vector<AbstractNode*> childnodes;
-	for(const auto &modinst : this->children) {
+	std::vector<AbstractNode *> childnodes;
+	for (const auto &modinst : this->children) {
 		AbstractNode *node = modinst->evaluate(evalctx);
 		if (node) childnodes.push_back(node);
 	}
@@ -81,15 +81,15 @@ std::vector<AbstractNode*> LocalScope::instantiateChildren(const Context *evalct
 }
 
 /*!
-	When instantiating a module which can take a scope as parameter (i.e. non-leaf nodes),
-	use this method to apply the local scope definitions to the evaluation context.
-	This will enable variables defined in local blocks.
-	NB! for loops are special as the local block may depend on variables evaluated by the
-	for loop parameters. The for loop code will handle this specially.
-*/
+   When instantiating a module which can take a scope as parameter (i.e. non-leaf nodes),
+   use this method to apply the local scope definitions to the evaluation context.
+   This will enable variables defined in local blocks.
+   NB! for loops are special as the local block may depend on variables evaluated by the
+   for loop parameters. The for loop code will handle this specially.
+ */
 void LocalScope::apply(Context &ctx) const
 {
-	for(const auto &ass : this->assignments) {
+	for (const auto &ass : this->assignments) {
 		ctx.set_variable(ass.name, ass.expr->evaluate(&ctx));
 	}
 }

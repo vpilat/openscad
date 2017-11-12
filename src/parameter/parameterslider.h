@@ -9,11 +9,11 @@ public:
 	ParameterSlider(ParameterObject *parameterobject, int showDescription);
 	void setValue();
 	void setParameterFocus();
-	
+
 private:
 	double step;
 	bool pressed;
-	bool volatile suppressUpdate; 
+	bool volatile suppressUpdate;
 
 protected slots:
 	void onSliderChanged(int);

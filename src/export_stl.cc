@@ -40,7 +40,7 @@ static void append_stl(const PolySet &ps, std::ostream &output)
 	PolysetUtils::tessellate_faces(ps, triangulated);
 
 	setlocale(LC_NUMERIC, "C"); // Ensure radix is . (not ,) in output
-	for(const auto &p : triangulated.polygons) {
+	for (const auto &p : triangulated.polygons) {
 		assert(p.size() == 3); // STL only allows triangles
 		std::stringstream stream;
 		stream << p[0][0] << " " << p[0][1] << " " << p[0][2];
@@ -67,8 +67,8 @@ static void append_stl(const PolySet &ps, std::ostream &output)
 				output << "0 0 0\n";
 			}
 			output << "    outer loop\n";
-		
-			for(const auto &v : p) {
+
+			for (const auto &v : p) {
 				output << "      vertex " << v[0] << " " << v[1] << " " << v[2] << "\n";
 			}
 			output << "    endloop\n";
@@ -80,9 +80,9 @@ static void append_stl(const PolySet &ps, std::ostream &output)
 
 static void append_stl(const CGAL_Polyhedron &P, std::ostream &output)
 {
-	typedef CGAL_Polyhedron::Vertex                                 Vertex;
-	typedef CGAL_Polyhedron::Vertex_const_iterator                  VCI;
-	typedef CGAL_Polyhedron::Facet_const_iterator                   FCI;
+	typedef CGAL_Polyhedron::Vertex Vertex;
+	typedef CGAL_Polyhedron::Vertex_const_iterator VCI;
+	typedef CGAL_Polyhedron::Facet_const_iterator FCI;
 	typedef CGAL_Polyhedron::Halfedge_around_facet_const_circulator HFCC;
 
 	for (FCI fi = P.facets_begin(); fi != P.facets_end(); ++fi) {
@@ -118,14 +118,14 @@ static void append_stl(const CGAL_Polyhedron &P, std::ostream &output)
 				// so the default value of "1 0 0" can be used. If the vertices are not
 				// collinear then the unit normal must be calculated from the
 				// components.
-				if (!CGAL::collinear(v1.point(),v2.point(),v3.point())) {
-					CGAL_Polyhedron::Traits::Vector_3 normal = CGAL::normal(v1.point(),v2.point(),v3.point());
+				if (!CGAL::collinear(v1.point(), v2.point(), v3.point())) {
+					CGAL_Polyhedron::Traits::Vector_3 normal = CGAL::normal(v1.point(), v2.point(), v3.point());
 					output << "  facet normal "
-								 << CGAL::sign(normal.x()) * sqrt(CGAL::to_double(normal.x()*normal.x()/normal.squared_length()))
+								 << CGAL::sign(normal.x()) * sqrt(CGAL::to_double(normal.x() * normal.x() / normal.squared_length()))
 								 << " "
-								 << CGAL::sign(normal.y()) * sqrt(CGAL::to_double(normal.y()*normal.y()/normal.squared_length()))
+								 << CGAL::sign(normal.y()) * sqrt(CGAL::to_double(normal.y() * normal.y() / normal.squared_length()))
 								 << " "
-								 << CGAL::sign(normal.z()) * sqrt(CGAL::to_double(normal.z()*normal.z()/normal.squared_length()))
+								 << CGAL::sign(normal.z()) * sqrt(CGAL::to_double(normal.z() * normal.z() / normal.squared_length()))
 								 << "\n";
 				}
 				else output << "  facet normal 1 0 0\n";
@@ -141,8 +141,8 @@ static void append_stl(const CGAL_Polyhedron &P, std::ostream &output)
 }
 
 /*!
-	Saves the current 3D CGAL Nef polyhedron as STL to the given file.
-	The file must be open.
+   Saves the current 3D CGAL Nef polyhedron as STL to the given file.
+   The file must be open.
  */
 static void append_stl(const CGAL_Nef_polyhedron &root_N, std::ostream &output)
 {
@@ -154,7 +154,9 @@ static void append_stl(const CGAL_Nef_polyhedron &root_N, std::ostream &output)
 	if (usePolySet) {
 		PolySet ps(3);
 		bool err = CGALUtils::createPolySetFromNefPolyhedron3(*(root_N.p3), ps);
-		if (err) { PRINT("ERROR: Nef->PolySet failed"); }
+		if (err) {
+			PRINT("ERROR: Nef->PolySet failed");
+		}
 		else {
 			append_stl(ps, output);
 		}
@@ -164,7 +166,7 @@ static void append_stl(const CGAL_Nef_polyhedron &root_N, std::ostream &output)
 		try {
 			CGAL_Polyhedron P;
 			//root_N.p3->convert_to_Polyhedron(P);
-			bool err = nefworkaround::convert_to_Polyhedron<CGAL_Kernel3>( *(root_N.p3), P );
+			bool err = nefworkaround::convert_to_Polyhedron<CGAL_Kernel3>(*(root_N.p3), P);
 			if (err) {
 				PRINT("ERROR: CGAL NefPolyhedron->Polyhedron conversion failed");
 				return;
@@ -191,7 +193,8 @@ static void append_stl(const shared_ptr<const Geometry> &geom, std::ostream &out
 	}
 	else if (dynamic_cast<const Polygon2d *>(geom.get())) {
 		assert(false && "Unsupported file format");
-	} else {
+	}
+	else {
 		assert(false && "Not implemented");
 	}
 }

@@ -13,11 +13,11 @@ IfElseModuleInstantiation::~IfElseModuleInstantiation()
 }
 
 /*!
-	Returns the absolute path to the given filename, unless it's empty.
+   Returns the absolute path to the given filename, unless it's empty.
 
-	NB! This will actually search for the file, to be backwards compatible with <= 2013.01
-	(see issue #217)
-*/
+   NB! This will actually search for the file, to be backwards compatible with <= 2013.01
+   (see issue #217)
+ */
 std::string ModuleInstantiation::getAbsolutePath(const std::string &filename) const
 {
 	if (!filename.empty() && !fs::path(filename).is_absolute()) {
@@ -33,7 +33,7 @@ std::string ModuleInstantiation::dump(const std::string &indent) const
 	std::stringstream dump;
 	dump << indent;
 	dump << modname + "(";
-	for (size_t i=0; i < this->arguments.size(); i++) {
+	for (size_t i = 0; i < this->arguments.size(); i++) {
 		const Assignment &arg = this->arguments[i];
 		if (i > 0) dump << ", ";
 		if (!arg.name.empty()) dump << arg.name << " = ";
@@ -41,10 +41,12 @@ std::string ModuleInstantiation::dump(const std::string &indent) const
 	}
 	if (scope.numElements() == 0) {
 		dump << ");\n";
-	} else if (scope.numElements() == 1) {
+	}
+	else if (scope.numElements() == 1) {
 		dump << ") ";
 		dump << scope.dump("");
-	} else {
+	}
+	else {
 		dump << ") {\n";
 		dump << scope.dump(indent + "\t");
 		dump << indent << "}\n";
@@ -84,12 +86,12 @@ AbstractNode *ModuleInstantiation::evaluate(const Context *ctx) const
 	return node;
 }
 
-std::vector<AbstractNode*> ModuleInstantiation::instantiateChildren(const Context *evalctx) const
+std::vector<AbstractNode *> ModuleInstantiation::instantiateChildren(const Context *evalctx) const
 {
 	return this->scope.instantiateChildren(evalctx);
 }
 
-std::vector<AbstractNode*> IfElseModuleInstantiation::instantiateElseChildren(const Context *evalctx) const
+std::vector<AbstractNode *> IfElseModuleInstantiation::instantiateElseChildren(const Context *evalctx) const
 {
 	return this->else_scope.instantiateChildren(evalctx);
 }

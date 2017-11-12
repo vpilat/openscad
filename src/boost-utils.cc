@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <iostream>
 
-namespace fs=boost::filesystem;
+namespace fs = boost::filesystem;
 // If the given (absolute) path is relative to the relative_to path, return a new
 // relative path. Will normalize the given path first
 fs::path boostfs_relative_path(const fs::path &path, const fs::path &relative_to)
@@ -11,13 +11,13 @@ fs::path boostfs_relative_path(const fs::path &path, const fs::path &relative_to
 	// create absolute paths
 	auto p = fs::absolute(boostfs_normalize(path));
 	auto r = fs::absolute(relative_to);
-	
+
 	// if root paths are different, return absolute path
 	if (p.root_path() != r.root_path()) return p;
-	
+
 	// initialize relative path
 	fs::path result;
-	
+
 	// find out where the two paths diverge
 	auto itr_path = p.begin();
 	auto itr_relative_to = r.begin();
@@ -25,7 +25,7 @@ fs::path boostfs_relative_path(const fs::path &path, const fs::path &relative_to
 		++itr_path;
 		++itr_relative_to;
 	}
-	
+
 	// add "../" for each remaining token in relative_to
 	if (itr_relative_to != r.end()) {
 		++itr_relative_to;
@@ -34,13 +34,13 @@ fs::path boostfs_relative_path(const fs::path &path, const fs::path &relative_to
 			++itr_relative_to;
 		}
 	}
-	
+
 	// add remaining path
 	while (itr_path != p.end()) {
 		result /= *itr_path;
 		++itr_path;
 	}
-	
+
 	return result;
 }
 
@@ -53,11 +53,11 @@ fs::path boostfs_normalize(const fs::path &path)
 	if (it != absPath.end()) it++;
 
 	// Get canonical version of the existing part
-	for (;exists(result) && it != absPath.end(); ++it) {
+	for (; exists(result) && it != absPath.end(); ++it) {
 		result /= *it;
 	}
 	result = boosty::canonical(result.parent_path());
-	if (it!=absPath.begin()) it--;
+	if (it != absPath.begin()) it--;
 
 	// For the rest remove ".." and "." in a path with no symlinks
 	for (; it != absPath.end(); ++it) {
@@ -77,13 +77,13 @@ fs::path boostfs_normalize(const fs::path &path)
 
 /**
  * https://svn.boost.org/trac/boost/ticket/1976#comment:2
- * 
+ *
  * "The idea: uncomplete(/foo/new, /foo/bar) => ../new
  *  The use case for this is any time you get a full path (from an open dialog, perhaps)
  *  and want to store a relative path so that the group of files can be moved to a different
  *  directory without breaking the paths. An IDE would be a simple example, so that the
  *  project file could be safely checked out of subversion."
- * 
+ *
  * ALGORITHM:
  *  iterate path and base
  * compare all elements so far of path and base
@@ -97,7 +97,7 @@ boostfs_uncomplete(fs::path const p, fs::path const base)
 {
 	if (p == base) return "./";
 	/*!! this breaks stuff if path is a filename rather than a directory,
-		which it most likely is... but then base shouldn't be a filename so... */
+	   which it most likely is... but then base shouldn't be a filename so... */
 
 	// create absolute paths
 	fs::path abs_p = fs::absolute(boostfs_normalize(p));
@@ -123,7 +123,7 @@ boostfs_uncomplete(fs::path const p, fs::path const base)
 #endif
 
 	// Cache system-dependent dot, double-dot and slash strings
-	const std::string _dot  = ".";
+	const std::string _dot = ".";
 	const std::string _dots = "..";
 	const std::string _sep = "/";
 
@@ -137,10 +137,8 @@ boostfs_uncomplete(fs::path const p, fs::path const base)
 			// write to output, ../ times the number of remaining elements in base;
 			// this is how far we've had to come down the tree from base to get to the common root
 			for (; base_it != base_end; ++base_it) {
-				if (*base_it == _dot)
-					continue;
-				else if (*base_it == _sep)
-					continue;
+				if (*base_it == _dot) continue;
+				else if (*base_it == _sep) continue;
 
 				output /= "../";
 			}

@@ -8,7 +8,7 @@
 class EventFilter : public QObject
 {
 	Q_OBJECT;
-	
+
 public:
 	EventFilter(QObject *parent) : QObject(parent) {}
 protected:
@@ -27,7 +27,8 @@ protected:
 				scadApp->requestOpenFile(filename);
 			}
 			return true;
-		} else {
+		}
+		else {
 			// standard event processing
 			return QObject::eventFilter(obj, event);
 		}

@@ -36,29 +36,29 @@ boost::optional<pt::ptree &> ParameterSet::getParameterSet(const std::string &se
 	}
 
 	pt::ptree::assoc_iterator set = sets.get().find(pt::ptree::key_type(setName));
-	if(set!=sets.get().not_found()) {
+	if (set != sets.get().not_found()) {
 		return set->second;
 	}
 	return sets;
 }
 
-void ParameterSet::addParameterSet(const std::string setName, const pt::ptree & set)
+void ParameterSet::addParameterSet(const std::string setName, const pt::ptree &set)
 {
 	boost::optional<pt::ptree &> sets = parameterSets();
 	if (sets.is_initialized()) {
 		sets.get().erase(pt::ptree::key_type(setName));
-		sets.get().push_back(pt::ptree::value_type(setName,set));
+		sets.get().push_back(pt::ptree::value_type(setName, set));
 	}
 	else {
 		pt::ptree child;
-		child.push_back(pt::ptree::value_type(setName,set));
-		root.push_back(pt::ptree::value_type(ParameterSet::parameterSetsKey,child));
+		child.push_back(pt::ptree::value_type(setName, set));
+		root.push_back(pt::ptree::value_type(ParameterSet::parameterSetsKey, child));
 	}
 }
 
 /*!
-	Returns true if the file is writable
-*/
+   Returns true if the file is writable
+ */
 bool ParameterSet::readParameterSet(const std::string &filename)
 {
 	try {
@@ -105,7 +105,8 @@ void ParameterSet::applyParameterSet(FileModule *fileModule, const std::string &
 					}
 					else if (defaultValue->type() == Value::ValueType::BOOL) {
 						assignment.expr = shared_ptr<Expression>(new Literal(ValuePtr(v.second.get_value<bool>())));
-					} else {
+					}
+					else {
 						shared_ptr<Expression> params = CommentParser::parser(v.second.data().c_str());
 						if (!params) continue;
 						ModuleContext ctx;
@@ -117,7 +118,7 @@ void ParameterSet::applyParameterSet(FileModule *fileModule, const std::string &
 			}
 		}
 	}
-	catch (std::exception const& e) {
+	catch (std::exception const &e) {
 		PRINTB("ERROR: Cannot apply parameter Set: %s", e.what());
 	}
 }

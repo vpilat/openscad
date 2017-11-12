@@ -8,7 +8,7 @@
 
 bool Renderer::getColor(Renderer::ColorMode colormode, Color4f &col) const
 {
-	if (colormode==ColorMode::NONE) return false;
+	if (colormode == ColorMode::NONE) return false;
 	if (colormap.count(colormode) > 0) {
 		col = colormap.at(colormode);
 		return true;
@@ -42,7 +42,7 @@ void Renderer::setColor(const float color[4], GLint *shaderinfo) const
 {
 	PRINTD("setColor a");
 	Color4f col;
-	getColor(ColorMode::MATERIAL,col);
+	getColor(ColorMode::MATERIAL, col);
 	float c[4] = {color[0], color[1], color[2], color[3]};
 	if (c[0] < 0) c[0] = col[0];
 	if (c[1] < 0) c[1] = col[1];
@@ -52,7 +52,7 @@ void Renderer::setColor(const float color[4], GLint *shaderinfo) const
 #ifdef ENABLE_OPENCSG
 	if (shaderinfo) {
 		glUniform4f(shaderinfo[1], c[0], c[1], c[2], c[3]);
-		glUniform4f(shaderinfo[2], (c[0]+1)/2, (c[1]+1)/2, (c[2]+1)/2, 1.0);
+		glUniform4f(shaderinfo[2], (c[0] + 1) / 2, (c[1] + 1) / 2, (c[2] + 1) / 2, 1.0);
 	}
 #endif
 }
@@ -79,16 +79,16 @@ void Renderer::setColor(ColorMode colormode, const float color[4], GLint *shader
 }
 
 void Renderer::setColor(ColorMode colormode, GLint *shaderinfo) const
-{	
+{
 	PRINTD("setColor c");
-	float c[4] = {-1,-1,-1,-1};
+	float c[4] = {-1, -1, -1, -1};
 	setColor(colormode, c, shaderinfo);
 }
 
-/* fill this->colormap with matching entries from the colorscheme. note 
-this does not change Highlight or Background colors as they are not 
-represented in the colorscheme (yet). Also edgecolors are currently the 
-same for CGAL & OpenCSG */
+/* fill this->colormap with matching entries from the colorscheme. note
+   this does not change Highlight or Background colors as they are not
+   represented in the colorscheme (yet). Also edgecolors are currently the
+   same for CGAL & OpenCSG */
 void Renderer::setColorScheme(const ColorScheme &cs) {
 	PRINTD("setColorScheme");
 	colormap[ColorMode::MATERIAL] = ColorMap::getColor(cs, RenderColor::OPENCSG_FACE_FRONT_COLOR);

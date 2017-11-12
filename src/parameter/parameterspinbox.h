@@ -2,7 +2,7 @@
 
 #include "parametervirtualwidget.h"
 
-class ParameterSpinBox :public ParameterVirtualWidget
+class ParameterSpinBox : public ParameterVirtualWidget
 {
 	Q_OBJECT
 public:
@@ -14,5 +14,5 @@ protected slots:
 	void onChanged(double);
 
 private:
-	bool volatile suppressUpdate; 
+	bool volatile suppressUpdate;
 };

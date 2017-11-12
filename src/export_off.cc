@@ -48,8 +48,8 @@ struct IndexedMesh {
 
 static void append_geometry(const PolySet &ps, IndexedMesh &mesh)
 {
-	for(const auto &p : ps.polygons) {
-		for(const auto &v : p) {
+	for (const auto &p : ps.polygons) {
+		for (const auto &v : p) {
 			mesh.indices.push_back(mesh.vertices.lookup(v));
 		}
 		mesh.numfaces++;
@@ -62,7 +62,9 @@ void append_geometry(const shared_ptr<const Geometry> &geom, IndexedMesh &mesh)
 	if (const CGAL_Nef_polyhedron *N = dynamic_cast<const CGAL_Nef_polyhedron *>(geom.get())) {
 		PolySet ps(3);
 		bool err = CGALUtils::createPolySetFromNefPolyhedron3(*(N->p3), ps);
-		if (err) { PRINT("ERROR: Nef->PolySet failed"); }
+		if (err) {
+			PRINT("ERROR: Nef->PolySet failed");
+		}
 		else {
 			append_geometry(ps, mesh);
 		}
@@ -72,7 +74,8 @@ void append_geometry(const shared_ptr<const Geometry> &geom, IndexedMesh &mesh)
 	}
 	else if (dynamic_cast<const Polygon2d *>(geom.get())) {
 		assert(false && "Unsupported file format");
-	} else {
+	}
+	else {
 		assert(false && "Not implemented");
 	}
 }
@@ -85,18 +88,18 @@ void export_off(const shared_ptr<const Geometry> &geom, std::ostream &output)
 	output << "OFF " << mesh.vertices.size() << " " << mesh.numfaces << " 0\n";
 	const Vector3d *v = mesh.vertices.getArray();
 	size_t numverts = mesh.vertices.size();
-	for (size_t i=0;i<numverts;i++) {
+	for (size_t i = 0; i < numverts; i++) {
 		output << v[i][0] << " " << v[i][1] << " " << v[i][2] << " " << "\n";
 	}
 	size_t cnt = 0;
-	for (size_t i=0;i<mesh.numfaces;i++) {
+	for (size_t i = 0; i < mesh.numfaces; i++) {
 		size_t nverts = 0;
 		while (mesh.indices[cnt++] != -1) nverts++;
 		output << nverts;
 		cnt -= nverts + 1;
-		for (size_t n=0;n<nverts;n++) output << " " << mesh.indices[cnt++];
+		for (size_t n = 0; n < nverts; n++) output << " " << mesh.indices[cnt++];
 		output << "\n";
-        cnt++; // Skip the -1 marker
+		cnt++;     // Skip the -1 marker
 	}
 
 }

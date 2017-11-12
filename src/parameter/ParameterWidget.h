@@ -42,7 +42,7 @@ private:
 		bool inList;
 	};
 	std::vector<std::string> groupPos;
-	typedef std::map<std::string,groupInst > group_map;
+	typedef std::map<std::string, groupInst> group_map;
 	group_map groupMap;
 	QTimer autoPreviewTimer;
 	int descriptionShow;
@@ -53,10 +53,10 @@ private:
 	void connectWidget();
 	void updateWidget();
 	void cleanScrollArea();
-	void addEntry(QVBoxLayout* anylayout, ParameterVirtualWidget *entry);
+	void addEntry(QVBoxLayout *anylayout, ParameterVirtualWidget *entry);
 	void end();
 	void clear();
-	ParameterVirtualWidget* CreateParameterWidget(std::string parameterName);
+	ParameterVirtualWidget *CreateParameterWidget(std::string parameterName);
 	void setComboBoxPresetForSet();
 
 public:
@@ -76,7 +76,7 @@ protected slots:
 	void resetParameter();
 
 signals:
-	void previewRequested(bool rebuildParameterUI=true);
+	void previewRequested(bool rebuildParameterUI = true);
 
 protected:
 	void applyParameterSet(std::string setName);

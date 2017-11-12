@@ -202,7 +202,7 @@ std::unordered_map<std::string, Color4f> ColorModule::webcolors{
 	{"yellow", {255, 255, 0}},
 	{"yellowgreen", {154, 205, 50}},
 
-	    // additional OpenSCAD specific entry
+	// additional OpenSCAD specific entry
 	{"transparent", {0, 0, 0, 0}}
 };
 
@@ -221,7 +221,7 @@ ColorModule::~ColorModule()
 // * "#rrggbbaa"
 // * "#rgb"
 // * "#rgba"
-boost::optional<Color4f> parse_hex_color(const std::string& hex) {
+boost::optional<Color4f> parse_hex_color(const std::string &hex) {
 	// validate size. short syntax uses one hex digit per color channel instead of 2.
 	const bool short_syntax = hex.size() == 4 || hex.size() == 5;
 	const bool long_syntax = hex.size() == 7 || hex.size() == 9;
@@ -229,10 +229,10 @@ boost::optional<Color4f> parse_hex_color(const std::string& hex) {
 
 	// validate
 	if (hex[0] != '#') return boost::none;
-	if (!std::all_of(std::begin(hex)+1, std::end(hex),
-					[](char c) {
-						return std::isxdigit(static_cast<unsigned char>(c));
-					})) {
+	if (!std::all_of(std::begin(hex) + 1, std::end(hex),
+									 [](char c) {
+		return std::isxdigit(static_cast<unsigned char>(c));
+	})) {
 		return boost::none;
 	}
 
@@ -244,7 +244,7 @@ boost::optional<Color4f> parse_hex_color(const std::string& hex) {
 	rgba[3] = 1.0; // default alpha to 100%
 
 	for (unsigned i = 0; i < (hex.size() - 1) / stride; i++) {
-		const std::string chunk = hex.substr(1 + i*stride, stride);
+		const std::string chunk = hex.substr(1 + i * stride, stride);
 
 		// convert the hex character(s) from base 16 to base 10
 		rgba[i] = stoi(chunk, nullptr, 16) / channel_max;
@@ -267,20 +267,22 @@ AbstractNode *ColorModule::instantiate(const Context *ctx, const ModuleInstantia
 	if (v->type() == Value::ValueType::VECTOR) {
 		for (size_t i = 0; i < 4; i++) {
 			node->color[i] = i < v->toVector().size() ? v->toVector()[i]->toDouble() : 1.0;
-			if (node->color[i] > 1)
-				PRINTB_NOCACHE("WARNING: color() expects numbers between 0.0 and 1.0. Value of %.1f is too large.", node->color[i]);
+			if (node->color[i] > 1) PRINTB_NOCACHE("WARNING: color() expects numbers between 0.0 and 1.0. Value of %.1f is too large.", node->color[i]);
 		}
-	} else if (v->type() == Value::ValueType::STRING) {
+	}
+	else if (v->type() == Value::ValueType::STRING) {
 		auto colorname = v->toString();
 		boost::algorithm::to_lower(colorname);
-		if (webcolors.find(colorname) != webcolors.end())	{
+		if (webcolors.find(colorname) != webcolors.end()) {
 			node->color = webcolors.at(colorname);
-		} else {
+		}
+		else {
 			// Try parsing it as a hex color such as "#rrggbb".
 			const auto hexColor = parse_hex_color(colorname);
 			if (hexColor) {
 				node->color = *hexColor;
-			} else {
+			}
+			else {
 				PRINTB_NOCACHE("WARNING: Unable to parse color \"%s\". Please see", colorname);
 				PRINT_NOCACHE("WARNING: http://en.wikipedia.org/wiki/Web_colors");
 			}

@@ -40,7 +40,7 @@ ThrownTogetherRenderer::ThrownTogetherRenderer(shared_ptr<CSGProducts> root_prod
 void ThrownTogetherRenderer::draw(bool /*showfaces*/, bool showedges) const
 {
 	PRINTD("Thrown draw");
- 	if (this->root_products) {
+	if (this->root_products) {
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
 		renderCSGProducts(*this->root_products, false, false, showedges, false);
@@ -49,10 +49,8 @@ void ThrownTogetherRenderer::draw(bool /*showfaces*/, bool showedges) const
 		renderCSGProducts(*this->root_products, false, false, showedges, true);
 		glDisable(GL_CULL_FACE);
 	}
-	if (this->background_products)
-	 	renderCSGProducts(*this->background_products, false, true, showedges, false);
-	if (this->highlight_products)
-	 	renderCSGProducts(*this->highlight_products, true, false, showedges, false);
+	if (this->background_products) renderCSGProducts(*this->background_products, false, true, showedges, false);
+	if (this->highlight_products) renderCSGProducts(*this->highlight_products, true, false, showedges, false);
 }
 
 void ThrownTogetherRenderer::renderChainObject(const CSGChainObject &csgobj, bool highlight_mode,
@@ -61,18 +59,19 @@ void ThrownTogetherRenderer::renderChainObject(const CSGChainObject &csgobj, boo
 	if (this->geomVisitMark[std::make_pair(csgobj.leaf->geom.get(), &csgobj.leaf->matrix)]++ > 0) return;
 	const Color4f &c = csgobj.leaf->color;
 	csgmode_e csgmode = csgmode_e(
-		(highlight_mode ? 
-		 CSGMODE_HIGHLIGHT :
-		 (background_mode ? CSGMODE_BACKGROUND : CSGMODE_NORMAL)) |
-		(type == OpenSCADOperator::DIFFERENCE ? CSGMODE_DIFFERENCE : CSGMODE_NONE));
+			(highlight_mode ?
+			 CSGMODE_HIGHLIGHT :
+			 (background_mode ? CSGMODE_BACKGROUND : CSGMODE_NORMAL)) |
+			(type == OpenSCADOperator::DIFFERENCE ? CSGMODE_DIFFERENCE : CSGMODE_NONE));
 
 	ColorMode colormode = ColorMode::NONE;
 	ColorMode edge_colormode = ColorMode::NONE;
-	
+
 	if (highlight_mode) {
 		colormode = ColorMode::HIGHLIGHT;
 		edge_colormode = ColorMode::HIGHLIGHT_EDGES;
-	} else if (background_mode) {
+	}
+	else if (background_mode) {
 		if (csgobj.flags & CSGNode::FLAG_HIGHLIGHT) {
 			colormode = ColorMode::HIGHLIGHT;
 		}
@@ -80,8 +79,10 @@ void ThrownTogetherRenderer::renderChainObject(const CSGChainObject &csgobj, boo
 			colormode = ColorMode::BACKGROUND;
 		}
 		edge_colormode = ColorMode::BACKGROUND_EDGES;
-	} else if (fberror) {
-	} else if (type == OpenSCADOperator::DIFFERENCE) {
+	}
+	else if (fberror) {
+	}
+	else if (type == OpenSCADOperator::DIFFERENCE) {
 		if (csgobj.flags & CSGNode::FLAG_HIGHLIGHT) {
 			colormode = ColorMode::HIGHLIGHT;
 		}
@@ -89,7 +90,8 @@ void ThrownTogetherRenderer::renderChainObject(const CSGChainObject &csgobj, boo
 			colormode = ColorMode::CUTOUT;
 		}
 		edge_colormode = ColorMode::CUTOUT_EDGES;
-	} else {
+	}
+	else {
 		if (csgobj.flags & CSGNode::FLAG_HIGHLIGHT) {
 			colormode = ColorMode::HIGHLIGHT;
 		}
@@ -98,7 +100,7 @@ void ThrownTogetherRenderer::renderChainObject(const CSGChainObject &csgobj, boo
 		}
 		edge_colormode = ColorMode::MATERIAL_EDGES;
 	}
-	
+
 	const Transform3d &m = csgobj.leaf->matrix;
 	setColor(colormode, c.data());
 	glPushMatrix();
@@ -110,22 +112,22 @@ void ThrownTogetherRenderer::renderChainObject(const CSGChainObject &csgobj, boo
 		render_edges(csgobj.leaf->geom, csgmode);
 	}
 	glPopMatrix();
-	
+
 }
 
 void ThrownTogetherRenderer::renderCSGProducts(const CSGProducts &products, bool highlight_mode,
-																							 bool background_mode, bool showedges, 
+																							 bool background_mode, bool showedges,
 																							 bool fberror) const
 {
 	PRINTD("Thrown renderCSGProducts");
 	glDepthFunc(GL_LEQUAL);
 	this->geomVisitMark.clear();
 
-	for(const auto &product : products.products) {
-		for(const auto &csgobj : product.intersections) {
+	for (const auto &product : products.products) {
+		for (const auto &csgobj : product.intersections) {
 			renderChainObject(csgobj, highlight_mode, background_mode, showedges, fberror, OpenSCADOperator::INTERSECTION);
 		}
-		for(const auto &csgobj : product.subtractions) {
+		for (const auto &csgobj : product.subtractions) {
 			renderChainObject(csgobj, highlight_mode, background_mode, showedges, fberror, OpenSCADOperator::DIFFERENCE);
 		}
 	}

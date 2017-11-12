@@ -11,7 +11,7 @@
 class Context
 {
 public:
-	typedef std::vector<const Context*> Stack;
+	typedef std::vector<const Context *> Stack;
 
 	Context(const Context *parent = nullptr);
 	virtual ~Context();
@@ -34,7 +34,7 @@ public:
 	void setDocumentPath(const std::string &path) { this->document_path = path; }
 	const std::string &documentPath() const { return this->document_path; }
 	std::string getAbsolutePath(const std::string &filename) const;
-        
+
 public:
 
 protected:

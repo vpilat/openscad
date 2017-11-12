@@ -38,9 +38,9 @@
 #define QUOTED(x__) QUOTE(x__)
 
 struct triangle {
-    std::string vs1;
-    std::string vs2;
-    std::string vs3;
+	std::string vs1;
+	std::string vs2;
+	std::string vs3;
 };
 
 static int objectid;
@@ -95,12 +95,9 @@ static void append_amf(const CGAL_Nef_polyhedron &root_N, std::ostream &output)
 				stream.str("");
 				stream << x3 << " " << y3 << " " << z3;
 				std::string vs3 = stream.str();
-				if (std::find(vertices.begin(), vertices.end(), vs1) == vertices.end())
-					vertices.push_back(vs1);
-				if (std::find(vertices.begin(), vertices.end(), vs2) == vertices.end())
-					vertices.push_back(vs2);
-				if (std::find(vertices.begin(), vertices.end(), vs3) == vertices.end())
-					vertices.push_back(vs3);
+				if (std::find(vertices.begin(), vertices.end(), vs1) == vertices.end()) vertices.push_back(vs1);
+				if (std::find(vertices.begin(), vertices.end(), vs2) == vertices.end()) vertices.push_back(vs2);
+				if (std::find(vertices.begin(), vertices.end(), vs3) == vertices.end()) vertices.push_back(vs3);
 
 				if (vs1 != vs2 && vs1 != vs3 && vs2 != vs3) {
 					// The above condition ensures that there are 3 distinct vertices, but
@@ -120,7 +117,7 @@ static void append_amf(const CGAL_Nef_polyhedron &root_N, std::ostream &output)
 		for (size_t i = 0; i < vertices.size(); i++) {
 			std::string s = vertices[i];
 			output << "    <vertex><coordinates>\r\n";
-			char* chrs = new char[s.length() + 1];
+			char *chrs = new char[s.length() + 1];
 			strcpy(chrs, s.c_str());
 			std::string coords = strtok(chrs, " ");
 			output << "     <x>" << coords << "</x>\r\n";
@@ -148,7 +145,8 @@ static void append_amf(const CGAL_Nef_polyhedron &root_N, std::ostream &output)
 		output << "   </volume>\r\n";
 		output << "  </mesh>\r\n"
 					 << " </object>\r\n";
-	} catch (CGAL::Assertion_exception e) {
+	}
+	catch (CGAL::Assertion_exception e) {
 		PRINTB("ERROR: CGAL error in CGAL_Nef_polyhedron3::convert_to_Polyhedron(): %s", e.what());
 	}
 	CGAL::set_error_behaviour(old_behaviour);
@@ -167,7 +165,8 @@ static void append_amf(const shared_ptr<const Geometry> &geom, std::ostream &out
 	}
 	else if (dynamic_cast<const Polygon2d *>(geom.get())) {
 		assert(false && "Unsupported file format");
-	} else {
+	}
+	else {
 		assert(false && "Not implemented");
 	}
 }
@@ -180,9 +179,9 @@ void export_amf(const shared_ptr<const Geometry> &geom, std::ostream &output)
 				 << "<amf unit=\"millimeter\">\r\n"
 				 << " <metadata type=\"producer\">OpenSCAD " << QUOTED(OPENSCAD_VERSION)
 #ifdef OPENSCAD_COMMIT
-				 << " (git " << QUOTED(OPENSCAD_COMMIT) << ")"
+		<< " (git " << QUOTED(OPENSCAD_COMMIT) << ")"
 #endif
-				 << "</metadata>\r\n";
+		<< "</metadata>\r\n";
 
 	objectid = 0;
 	append_amf(geom, output);

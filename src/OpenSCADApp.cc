@@ -9,7 +9,7 @@
 #include <boost/foreach.hpp>
 #include "QSettingsCached.h"
 
-OpenSCADApp::OpenSCADApp(int &argc ,char **argv)
+OpenSCADApp::OpenSCADApp(int &argc, char **argv)
 	: QApplication(argc, argv), fontCacheDialog(nullptr)
 {
 #ifdef Q_OS_MAC
@@ -26,7 +26,7 @@ OpenSCADApp::~OpenSCADApp()
 
 bool OpenSCADApp::notify(QObject *object, QEvent *event)
 {
-	QString msg; 
+	QString msg;
 	try {
 		return QApplication::notify(object, event);
 	}
@@ -42,7 +42,7 @@ bool OpenSCADApp::notify(QObject *object, QEvent *event)
 }
 
 /*!
-	Requests to open a file from an external event, e.g. by double-clicking a filename.
+   Requests to open a file from an external event, e.g. by double-clicking a filename.
  */
 void OpenSCADApp::requestOpenFile(const QString &filename)
 {

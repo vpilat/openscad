@@ -31,32 +31,32 @@
 #include <boost/range/iterator_range.hpp>
 
 /*!
-	\class CSGNode
+   \class CSGNode
 
-	CSG trees consiste of CSGNode instances; either a CSGLeaf node
-	containing geometry or a CSGOperation performing a basic CSG
-	operation on its operands.
+   CSG trees consiste of CSGNode instances; either a CSGLeaf node
+   containing geometry or a CSGOperation performing a basic CSG
+   operation on its operands.
 
-	Note: To distinguish between geometry evaluated to an empty volume
-	and non-geometric nodes (e.g. echo), a nullptr CSGLeaf is considered a
-	non-geometric node, while a CSGLeaf with a nullptr geometry is
-	considered empty geometry. This is important when e.g. establishing
-	positive vs. negative volumes using the difference operator.
+   Note: To distinguish between geometry evaluated to an empty volume
+   and non-geometric nodes (e.g. echo), a nullptr CSGLeaf is considered a
+   non-geometric node, while a CSGLeaf with a nullptr geometry is
+   considered empty geometry. This is important when e.g. establishing
+   positive vs. negative volumes using the difference operator.
  */
 
 /*!
-	\class CSGProducts
+   \class CSGProducts
 
-	A CSGProducts is just a vector of CSGProduct nodes.
-primitives, each having a CSG type associated with it.
-	It's created by importing a CSGTerm tree.
+   A CSGProducts is just a vector of CSGProduct nodes.
+   primitives, each having a CSG type associated with it.
+   It's created by importing a CSGTerm tree.
 
  */
 /*!
-	\class CSGProduct
+   \class CSGProduct
 
-	A CSGProduct is a vector of intersections and a vector of subtractions, used for CSG rendering.
-*/
+   A CSGProduct is a vector of intersections and a vector of subtractions, used for CSG rendering.
+ */
 
 
 shared_ptr<CSGNode> CSGOperation::createCSGNode(OpenSCADOperator type, shared_ptr<CSGNode> left, shared_ptr<CSGNode> right)
@@ -71,23 +71,23 @@ shared_ptr<CSGNode> CSGOperation::createCSGNode(OpenSCADOperator type, shared_pt
 		else return left;
 	}
 
-  // Pruning the tree. For details, see "Solid Modeling" by Goldfeather:
-  // http://www.cc.gatech.edu/~turk/my_papers/pxpl_csg.pdf
+	// Pruning the tree. For details, see "Solid Modeling" by Goldfeather:
+	// http://www.cc.gatech.edu/~turk/my_papers/pxpl_csg.pdf
 	const auto &leftbox = left->getBoundingBox();
 	const auto &rightbox = right->getBoundingBox();
 	Vector3d newmin, newmax;
 	if (type == OpenSCADOperator::INTERSECTION) {
-		newmin = leftbox.min().array().cwiseMax( rightbox.min().array() );
-		newmax = leftbox.max().array().cwiseMin( rightbox.max().array() );
+		newmin = leftbox.min().array().cwiseMax(rightbox.min().array());
+		newmax = leftbox.max().array().cwiseMin(rightbox.max().array());
 		BoundingBox newbox(newmin, newmax);
 		if (newbox.isNull()) {
 			return shared_ptr<CSGNode>(); // Prune entire product
 		}
 	}
 	else if (type == OpenSCADOperator::DIFFERENCE) {
-		newmin = leftbox.min().array().cwiseMax( rightbox.min().array() );
-		newmax = leftbox.max().array().cwiseMin( rightbox.max().array() );
-		BoundingBox newbox( newmin, newmax );
+		newmin = leftbox.min().array().cwiseMax(rightbox.min().array());
+		newmax = leftbox.max().array().cwiseMin(rightbox.max().array());
+		BoundingBox newbox(newmin, newmax);
 		if (newbox.isNull()) {
 			return left; // Prune the negative component
 		}
@@ -132,14 +132,14 @@ void CSGOperation::initBoundingBox()
 	Vector3d newmin, newmax;
 	switch (this->type) {
 	case OpenSCADOperator::UNION:
-		newmin = leftbox.min().array().cwiseMin( rightbox.min().array() );
-		newmax = leftbox.max().array().cwiseMax( rightbox.max().array() );
-		this->bbox = BoundingBox( newmin, newmax );
+		newmin = leftbox.min().array().cwiseMin(rightbox.min().array());
+		newmax = leftbox.max().array().cwiseMax(rightbox.max().array());
+		this->bbox = BoundingBox(newmin, newmax);
 		break;
 	case OpenSCADOperator::INTERSECTION:
-		newmin = leftbox.min().array().cwiseMax( rightbox.min().array() );
-		newmax = leftbox.max().array().cwiseMin( rightbox.max().array() );
-		this->bbox = BoundingBox( newmin, newmax );
+		newmin = leftbox.min().array().cwiseMax(rightbox.min().array());
+		newmax = leftbox.max().array().cwiseMin(rightbox.max().array());
+		this->bbox = BoundingBox(newmin, newmax);
 		break;
 	case OpenSCADOperator::DIFFERENCE:
 		this->bbox = leftbox;
@@ -158,14 +158,10 @@ std::string CSGOperation::dump()
 {
 	std::stringstream dump;
 
-	if (type == OpenSCADOperator::UNION)
-		dump << "(" << left()->dump() << " + " << right()->dump() << ")";
-	else if (type == OpenSCADOperator::INTERSECTION)
-		dump << "(" << left()->dump() << " * " << right()->dump() << ")";
-	else if (type == OpenSCADOperator::DIFFERENCE)
-		dump << "(" << left()->dump() << " - " << right()->dump() << ")";
-	else 
-		assert(false);
+	if (type == OpenSCADOperator::UNION) dump << "(" << left()->dump() << " + " << right()->dump() << ")";
+	else if (type == OpenSCADOperator::INTERSECTION) dump << "(" << left()->dump() << " * " << right()->dump() << ")";
+	else if (type == OpenSCADOperator::DIFFERENCE) dump << "(" << left()->dump() << " - " << right()->dump() << ")";
+	else assert(false);
 
 	return dump.str();
 }
@@ -185,7 +181,8 @@ void CSGProducts::import(shared_ptr<CSGNode> csgnode, OpenSCADOperator type, CSG
 			this->currentlist = &this->currentproduct->intersections;
 		}
 		this->currentlist->push_back(CSGChainObject(leaf, newflags));
-	} else if (auto op = dynamic_pointer_cast<CSGOperation>(csgnode)) {
+	}
+	else if (auto op = dynamic_pointer_cast<CSGOperation>(csgnode)) {
 		assert(op->left() && op->right());
 		import(op->left(), type, newflags);
 		import(op->right(), op->getType(), newflags);
@@ -196,12 +193,12 @@ std::string CSGProduct::dump() const
 {
 	std::stringstream dump;
 	dump << this->intersections.front().leaf->label;
-	for(const auto &csgobj :
-								boost::make_iterator_range(this->intersections.begin() + 1,
-																					 this->intersections.end())) {
+	for (const auto &csgobj :
+			 boost::make_iterator_range(this->intersections.begin() + 1,
+																	this->intersections.end())) {
 		dump << " *" << csgobj.leaf->label;
 	}
-	for(const auto &csgobj : this->subtractions) {
+	for (const auto &csgobj : this->subtractions) {
 		dump << " -" << csgobj.leaf->label;
 	}
 	return dump.str();
@@ -210,7 +207,7 @@ std::string CSGProduct::dump() const
 BoundingBox CSGProduct::getBoundingBox() const
 {
 	BoundingBox bbox;
-	for(const auto &csgobj : this->intersections) {
+	for (const auto &csgobj : this->intersections) {
 		if (csgobj.leaf->geom) {
 			auto psbox = csgobj.leaf->geom->getBoundingBox();
 			// FIXME: Should intersect rather than extend
@@ -224,7 +221,7 @@ std::string CSGProducts::dump() const
 {
 	std::stringstream dump;
 
-	for(const auto &product : this->products) {
+	for (const auto &product : this->products) {
 		dump << "+" << product.dump() << "\n";
 	}
 	return dump.str();
@@ -233,7 +230,7 @@ std::string CSGProducts::dump() const
 BoundingBox CSGProducts::getBoundingBox() const
 {
 	BoundingBox bbox;
-	for(const auto &product : this->products) {
+	for (const auto &product : this->products) {
 		bbox.extend(product.getBoundingBox());
 	}
 	return bbox;
@@ -242,7 +239,7 @@ BoundingBox CSGProducts::getBoundingBox() const
 size_t CSGProducts::size() const
 {
 	size_t count = 0;
-	for(const auto &product : this->products) {
+	for (const auto &product : this->products) {
 		count += product.intersections.size() + product.subtractions.size();
 	}
 	return count;

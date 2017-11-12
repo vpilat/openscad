@@ -101,13 +101,11 @@ AbstractNode *LinearExtrudeModule::instantiate(const Context *ctx, const ModuleI
 	scale->getFiniteDouble(node->scale_y);
 	scale->getVec2(node->scale_x, node->scale_y, true);
 
-	if (center->type() == Value::ValueType::BOOL)
-		node->center = center->toBool();
+	if (center->type() == Value::ValueType::BOOL) node->center = center->toBool();
 
 	if (node->height <= 0) node->height = 0;
 
-	if (node->convexity <= 0)
-		node->convexity = 1;
+	if (node->convexity <= 0) node->convexity = 1;
 
 	if (node->scale_x < 0) node->scale_x = 0;
 	if (node->scale_y < 0) node->scale_y = 0;
@@ -139,20 +137,20 @@ std::string LinearExtrudeNode::toString() const
 	std::stringstream stream;
 
 	stream << this->name() << "(";
-	if (!this->filename.empty()) { // Ignore deprecated parameters if empty 
+	if (!this->filename.empty()) { // Ignore deprecated parameters if empty
 		fs::path path((std::string)this->filename);
 		stream <<
 			"file = " << this->filename << ", "
 			"layer = " << QuotedString(this->layername) << ", "
 			"origin = [" << this->origin_x << ", " << this->origin_y << "], "
-			<< "timestamp = " << (fs::exists(path) ? fs::last_write_time(path) : 0) << ", "
-			;
+					 << "timestamp = " << (fs::exists(path) ? fs::last_write_time(path) : 0) << ", "
+		;
 	}
 	stream <<
 		"height = " << std::dec << this->height << ", "
-		"center = " << (this->center?"true":"false") << ", "
+		"center = " << (this->center ? "true" : "false") << ", "
 		"convexity = " << this->convexity;
-	
+
 	if (this->has_twist) {
 		stream << ", twist = " << this->twist;
 	}
@@ -161,7 +159,7 @@ std::string LinearExtrudeNode::toString() const
 	}
 	stream << ", scale = [" << this->scale_x << ", " << this->scale_y << "]";
 	stream << ", $fn = " << this->fn << ", $fa = " << this->fa << ", $fs = " << this->fs << ")";
-	
+
 	return stream.str();
 }
 

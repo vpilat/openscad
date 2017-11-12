@@ -14,11 +14,12 @@ void bind_offscreen_context(OffscreenContext *ctx)
  */
 bool save_framebuffer(OffscreenContext *ctx, const char *filename)
 {
-	std::ofstream fstream(filename,std::ios::out|std::ios::binary);
+	std::ofstream fstream(filename, std::ios::out | std::ios::binary);
 	if (!fstream.is_open()) {
 		std::cerr << "Can't open file " << filename << " for writing";
 		return false;
-	} else {
+	}
+	else {
 		save_framebuffer(ctx, fstream);
 		fstream.close();
 	}
@@ -26,14 +27,14 @@ bool save_framebuffer(OffscreenContext *ctx, const char *filename)
 }
 
 /*!
-  Capture framebuffer from OpenGL and write it to the given ostream.
-  Called by save_framebuffer() from platform-specific code.
+   Capture framebuffer from OpenGL and write it to the given ostream.
+   Called by save_framebuffer() from platform-specific code.
  */
 bool save_framebuffer_common(OffscreenContext *ctx, std::ostream &output)
 {
 	if (!ctx) return false;
 	int samplesPerPixel = 4; // R, G, B and A
-	std::vector<GLubyte> pixels(ctx->width * ctx->height * samplesPerPixel);
+	std::vector<GLubyte> pixels(ctx->width *ctx->height *samplesPerPixel);
 	glReadPixels(0, 0, ctx->width, ctx->height, GL_RGBA, GL_UNSIGNED_BYTE, &pixels[0]);
 
 	// Flip it vertically - images read from OpenGL buffers are upside-down

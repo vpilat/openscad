@@ -16,19 +16,19 @@ CGAL_Nef_polyhedron::CGAL_Nef_polyhedron(const CGAL_Nef_polyhedron &src)
 	if (src.p3) this->p3.reset(new CGAL_Nef_polyhedron3(*src.p3));
 }
 
-CGAL_Nef_polyhedron& CGAL_Nef_polyhedron::operator+=(const CGAL_Nef_polyhedron &other)
+CGAL_Nef_polyhedron &CGAL_Nef_polyhedron::operator+=(const CGAL_Nef_polyhedron &other)
 {
 	(*this->p3) += (*other.p3);
 	return *this;
 }
 
-CGAL_Nef_polyhedron& CGAL_Nef_polyhedron::operator*=(const CGAL_Nef_polyhedron &other)
+CGAL_Nef_polyhedron &CGAL_Nef_polyhedron::operator*=(const CGAL_Nef_polyhedron &other)
 {
 	(*this->p3) *= (*other.p3);
 	return *this;
 }
 
-CGAL_Nef_polyhedron& CGAL_Nef_polyhedron::operator-=(const CGAL_Nef_polyhedron &other)
+CGAL_Nef_polyhedron &CGAL_Nef_polyhedron::operator-=(const CGAL_Nef_polyhedron &other)
 {
 	(*this->p3) -= (*other.p3);
 	return *this;
@@ -55,10 +55,10 @@ bool CGAL_Nef_polyhedron::isEmpty() const
 }
 
 /*!
-	Creates a new PolySet and initializes it with the data from this polyhedron
+   Creates a new PolySet and initializes it with the data from this polyhedron
 
-	Note: Can return nullptr if an error occurred
-*/
+   Note: Can return nullptr if an error occurred
+ */
 // FIXME: Deprecated by CGALUtils::createPolySetFromNefPolyhedron3
 #if 0
 PolySet *CGAL_Nef_polyhedron::convertToPolyset() const
@@ -72,10 +72,10 @@ PolySet *CGAL_Nef_polyhedron::convertToPolyset() const
 	std::string errmsg("");
 	CGAL_Polyhedron P;
 	try {
-		// Cast away constness: 
+		// Cast away constness:
 		// convert_to_Polyhedron() wasn't const in earlier versions of CGAL.
-		CGAL_Nef_polyhedron3 *nonconst_nef3 = const_cast<CGAL_Nef_polyhedron3*>(this->p3.get());
-		err = nefworkaround::convert_to_Polyhedron<CGAL_Kernel3>( *(nonconst_nef3), P );
+		CGAL_Nef_polyhedron3 *nonconst_nef3 = const_cast<CGAL_Nef_polyhedron3 *>(this->p3.get());
+		err = nefworkaround::convert_to_Polyhedron<CGAL_Kernel3>(*(nonconst_nef3), P);
 		//this->p3->convert_to_Polyhedron(P);
 	}
 	catch (const CGAL::Failure_exception &e) {
@@ -85,16 +85,16 @@ PolySet *CGAL_Nef_polyhedron::convertToPolyset() const
 	if (!err) err = CGALUtils::createPolySetFromPolyhedron(P, *ps);
 	if (err) {
 		PRINT("ERROR: CGAL NefPolyhedron->Polyhedron conversion failed.");
-		if (errmsg!="") PRINTB("ERROR: %s",errmsg);
+		if (errmsg != "") PRINTB("ERROR: %s", errmsg);
 		delete ps; ps = nullptr;
 	}
 	CGAL::set_error_behaviour(old_behaviour);
 	return ps;
 }
-#endif
+#endif // if 0
 
-void CGAL_Nef_polyhedron::resize(const Vector3d &newsize, 
-																 const Eigen::Matrix<bool,3,1> &autosize)
+void CGAL_Nef_polyhedron::resize(const Vector3d &newsize,
+																 const Eigen::Matrix<bool, 3, 1> &autosize)
 {
 	// Based on resize() in Giles Bathgate's RapCAD (but not exactly)
 	if (this->isEmpty()) return;
@@ -102,12 +102,12 @@ void CGAL_Nef_polyhedron::resize(const Vector3d &newsize,
 	auto bb = CGALUtils::boundingBox(*this->p3);
 
 	std::vector<NT3> scale, bbox_size;
-	for (unsigned int i=0;i<3;i++) {
+	for (unsigned int i = 0; i < 3; i++) {
 		scale.push_back(NT3(1));
 		bbox_size.push_back(bb.max_coord(i) - bb.min_coord(i));
 	}
 	int newsizemax_index = 0;
-	for (unsigned int i=0;i<this->getDimension();i++) {
+	for (unsigned int i = 0; i < this->getDimension(); i++) {
 		if (newsize[i]) {
 			if (bbox_size[i] == NT3(0)) {
 				PRINT("WARNING: Resize in direction normal to flat object is not implemented");
@@ -124,26 +124,26 @@ void CGAL_Nef_polyhedron::resize(const Vector3d &newsize,
 	if (newsize[newsizemax_index] != 0) {
 		autoscale = NT3(newsize[newsizemax_index]) / bbox_size[newsizemax_index];
 	}
-	for (unsigned int i=0;i<this->getDimension();i++) {
-		if (autosize[i] && newsize[i]==0) scale[i] = autoscale;
+	for (unsigned int i = 0; i < this->getDimension(); i++) {
+		if (autosize[i] && newsize[i] == 0) scale[i] = autoscale;
 	}
 
 	Eigen::Matrix4d t;
 	t << CGAL::to_double(scale[0]),           0,        0,        0,
-	     0,        CGAL::to_double(scale[1]),           0,        0,
-	     0,        0,        CGAL::to_double(scale[2]),           0,
-	     0,        0,        0,                                   1;
+		0,        CGAL::to_double(scale[1]),           0,        0,
+		0,        0,        CGAL::to_double(scale[2]),           0,
+		0,        0,        0,                                   1;
 
 	this->transform(Transform3d(t));
 }
 
 std::string CGAL_Nef_polyhedron::dump() const
 {
-	return OpenSCAD::dump_svg( *this->p3 );
+	return OpenSCAD::dump_svg(*this->p3);
 }
 
 
-void CGAL_Nef_polyhedron::transform( const Transform3d &matrix )
+void CGAL_Nef_polyhedron::transform(const Transform3d &matrix)
 {
 	if (!this->isEmpty()) {
 		if (matrix.matrix().determinant() == 0) {
@@ -152,9 +152,9 @@ void CGAL_Nef_polyhedron::transform( const Transform3d &matrix )
 		}
 		else {
 			CGAL_Aff_transformation t(
-				matrix(0,0), matrix(0,1), matrix(0,2), matrix(0,3),
-				matrix(1,0), matrix(1,1), matrix(1,2), matrix(1,3),
-				matrix(2,0), matrix(2,1), matrix(2,2), matrix(2,3), matrix(3,3));
+				matrix(0, 0), matrix(0, 1), matrix(0, 2), matrix(0, 3),
+				matrix(1, 0), matrix(1, 1), matrix(1, 2), matrix(1, 3),
+				matrix(2, 0), matrix(2, 1), matrix(2, 2), matrix(2, 3), matrix(3, 3));
 			this->p3->transform(t);
 		}
 	}

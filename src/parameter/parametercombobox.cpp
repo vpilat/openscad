@@ -8,20 +8,23 @@ ParameterComboBox::ParameterComboBox(ParameterObject *parameterobject, int showD
 	connect(comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(onChanged(int)));
 	if (showDescription == 0) {
 		setDescription(object->description);
-	}else if(showDescription == 1){
+	}
+	else if (showDescription == 1) {
 		addInline(object->description);
-	}else {
+	}
+	else {
 		comboBox->setToolTip(object->description);
 	}
 }
 
 void ParameterComboBox::onChanged(int idx)
 {
-	if(!suppressUpdate){
+	if (!suppressUpdate) {
 		if (object->dvt == Value::ValueType::STRING) {
 			const std::string v = comboBox->itemData(idx).toString().toStdString();
 			object->value = ValuePtr(v);
-		} else {
+		}
+		else {
 			const double v = comboBox->itemData(idx).toDouble();
 			object->value = ValuePtr(v);
 		}
@@ -38,13 +41,13 @@ void ParameterComboBox::setParameterFocus()
 
 void ParameterComboBox::setValue()
 {
-	suppressUpdate=true;
+	suppressUpdate = true;
 	this->stackedWidgetBelow->setCurrentWidget(this->pageComboBox);
 	this->pageComboBox->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
 	this->stackedWidgetRight->hide();
 	comboBox->clear();
-	const Value::VectorType& vec = object->values->toVector();
-	for (Value::VectorType::const_iterator it = vec.begin(); it != vec.end(); it++)	{
+	const Value::VectorType &vec = object->values->toVector();
+	for (Value::VectorType::const_iterator it = vec.begin(); it != vec.end(); it++) {
 		if ((*it)->toVector().size() > 1) {
 			comboBox->addItem(QString::fromStdString((*it)->toVector()[1]->toString()),
 												QVariant(QString::fromStdString((*it)->toVector()[0]->toString())));
@@ -52,7 +55,7 @@ void ParameterComboBox::setValue()
 		else {
 			comboBox->addItem(QString::fromStdString((*it)->toString()),
 												QVariant(QString::fromStdString((*it)->toString())));
-			
+
 		}
 	}
 	QString defaultText = QString::fromStdString(object->value->toString());
@@ -60,5 +63,5 @@ void ParameterComboBox::setValue()
 	if (idx >= 0) {
 		comboBox->setCurrentIndex(idx);
 	}
-	suppressUpdate=false;
+	suppressUpdate = false;
 }

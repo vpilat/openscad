@@ -49,17 +49,13 @@ AbstractNode *CgaladvModule::instantiate(const Context *ctx, const ModuleInstant
 
 	AssignmentList args;
 
-	if (type == CgaladvType::MINKOWSKI)
-		args += Assignment("convexity");
+	if (type == CgaladvType::MINKOWSKI) args += Assignment("convexity");
 
-	if (type == CgaladvType::GLIDE)
-		args += Assignment("path"), Assignment("convexity");
+	if (type == CgaladvType::GLIDE) args += Assignment("path"), Assignment("convexity");
 
-	if (type == CgaladvType::SUBDIV)
-		args += Assignment("type"), Assignment("level"), Assignment("convexity");
+	if (type == CgaladvType::SUBDIV) args += Assignment("type"), Assignment("level"), Assignment("convexity");
 
-	if (type == CgaladvType::RESIZE)
-		args += Assignment("newsize"), Assignment("auto");
+	if (type == CgaladvType::RESIZE) args += Assignment("newsize"), Assignment("auto");
 
 	Context c(ctx);
 	c.setVariables(args, evalctx);
@@ -69,7 +65,7 @@ AbstractNode *CgaladvModule::instantiate(const Context *ctx, const ModuleInstant
 	auto path = ValuePtr::undefined;
 	auto subdiv_type = ValuePtr::undefined;
 	auto level = ValuePtr::undefined;
-	
+
 	if (type == CgaladvType::MINKOWSKI) {
 		convexity = c.lookup_variable("convexity", true);
 	}
@@ -87,23 +83,23 @@ AbstractNode *CgaladvModule::instantiate(const Context *ctx, const ModuleInstant
 
 	if (type == CgaladvType::RESIZE) {
 		auto ns = c.lookup_variable("newsize");
-		node->newsize << 0,0,0;
-		if ( ns->type() == Value::ValueType::VECTOR ) {
+		node->newsize << 0, 0, 0;
+		if (ns->type() == Value::ValueType::VECTOR) {
 			const Value::VectorType &vs = ns->toVector();
-			if ( vs.size() >= 1 ) node->newsize[0] = vs[0]->toDouble();
-			if ( vs.size() >= 2 ) node->newsize[1] = vs[1]->toDouble();
-			if ( vs.size() >= 3 ) node->newsize[2] = vs[2]->toDouble();
+			if (vs.size() >= 1) node->newsize[0] = vs[0]->toDouble();
+			if (vs.size() >= 2) node->newsize[1] = vs[1]->toDouble();
+			if (vs.size() >= 3) node->newsize[2] = vs[2]->toDouble();
 		}
 		auto autosize = c.lookup_variable("auto");
 		node->autosize << false, false, false;
-		if ( autosize->type() == Value::ValueType::VECTOR ) {
+		if (autosize->type() == Value::ValueType::VECTOR) {
 			const Value::VectorType &va = autosize->toVector();
-			if ( va.size() >= 1 ) node->autosize[0] = va[0]->toBool();
-			if ( va.size() >= 2 ) node->autosize[1] = va[1]->toBool();
-			if ( va.size() >= 3 ) node->autosize[2] = va[2]->toBool();
+			if (va.size() >= 1) node->autosize[0] = va[0]->toBool();
+			if (va.size() >= 2) node->autosize[1] = va[1]->toBool();
+			if (va.size() >= 3) node->autosize[2] = va[2]->toBool();
 		}
-		else if ( autosize->type() == Value::ValueType::BOOL ) {
-			node->autosize << autosize->toBool(),autosize->toBool(),autosize->toBool();
+		else if (autosize->type() == Value::ValueType::BOOL) {
+			node->autosize << autosize->toBool(), autosize->toBool(), autosize->toBool();
 		}
 	}
 
@@ -164,10 +160,10 @@ std::string CgaladvNode::toString() const
 		break;
 	case CgaladvType::RESIZE:
 		stream << "(newsize = ["
-		  << this->newsize[0] << "," << this->newsize[1] << "," << this->newsize[2] << "]"
-		  << ", auto = ["
-		  << this->autosize[0] << "," << this->autosize[1] << "," << this->autosize[2] << "]"
-		  << ")";
+					 << this->newsize[0] << "," << this->newsize[1] << "," << this->newsize[2] << "]"
+					 << ", auto = ["
+					 << this->autosize[0] << "," << this->autosize[1] << "," << this->autosize[2] << "]"
+					 << ")";
 		break;
 	default:
 		assert(false);

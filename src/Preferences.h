@@ -13,10 +13,10 @@ class Preferences : public QMainWindow, public Ui::Preferences
 
 public:
 	~Preferences();
-	
+
 	static void create(QStringList colorSchemes);
 	static Preferences *inst();
-	
+
 	QVariant getValue(const QString &key) const;
 	void init();
 	void apply() const;
@@ -47,9 +47,9 @@ public slots:
 	void on_editorType_currentIndexChanged(const QString &);
 
 	void on_checkBoxShowWarningsIn3dView_toggled(bool);
-  //
+	//
 	// editor settings
-  //
+	//
 
 	// Indentation
 	void on_checkBoxAutoIndent_toggled(bool);
@@ -60,7 +60,7 @@ public slots:
 	void on_comboBoxTabKeyFunction_activated(int);
 	void on_comboBoxShowWhitespace_activated(int);
 	void on_spinBoxShowWhitespaceSize_valueChanged(int);
-	
+
 	// Line wrap
 	void on_comboBoxLineWrap_activated(int);
 	void on_comboBoxLineWrapIndentationStyle_activated(int);
@@ -71,7 +71,7 @@ public slots:
 	// Display
 	void on_checkBoxHighlightCurrentLine_toggled(bool);
 	void on_checkBoxEnableBraceMatching_toggled(bool);
-    void on_checkBoxEnableLineNumbers_toggled(bool);
+	void on_checkBoxEnableLineNumbers_toggled(bool);
 
 signals:
 	void requestRedraw() const;
@@ -84,10 +84,10 @@ signals:
 	void syntaxHighlightChanged(const QString &s) const;
 	void editorTypeChanged(const QString &type);
 	void editorConfigChanged() const;
-	void ExperimentalChanged() const ;
+	void ExperimentalChanged() const;
 
 private:
-    Preferences(QWidget *parent = nullptr);
+	Preferences(QWidget *parent = nullptr);
 	void keyPressEvent(QKeyEvent *e);
 	void updateGUI();
 	void removeDefaultSettings();
@@ -96,13 +96,13 @@ private:
 	void addPrefPage(QActionGroup *group, QAction *action, QWidget *widget);
 
 	/** Initialize combobox list values from the settings range values */
-	void initComboBox(QComboBox *comboBox, const Settings::SettingsEntry& entry);
+	void initComboBox(QComboBox *comboBox, const Settings::SettingsEntry &entry);
 	/** Initialize spinbox min/max values from the settings range values */
-	void initSpinBox(QSpinBox *spinBox, const Settings::SettingsEntry& entry);
+	void initSpinBox(QSpinBox *spinBox, const Settings::SettingsEntry &entry);
 	/** Update combobox from current settings */
-	void updateComboBox(QComboBox *comboBox, const Settings::SettingsEntry& entry);
+	void updateComboBox(QComboBox *comboBox, const Settings::SettingsEntry &entry);
 	/** Set value from combobox to settings */
-	void applyComboBox(QComboBox *comboBox, int val, Settings::SettingsEntry& entry);
+	void applyComboBox(QComboBox *comboBox, int val, Settings::SettingsEntry &entry);
 
 	QSettings::SettingsMap defaultmap;
 	QHash<const QAction *, QWidget *> prefPages;

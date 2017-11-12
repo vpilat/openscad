@@ -41,46 +41,46 @@ using namespace boost::assign; // bring 'operator+=()' into scope
 
 // unnamed namespace
 namespace {
-	bool isListComprehension(const shared_ptr<Expression> &e) {
-		return dynamic_cast<const ListComprehension *>(e.get());
-	}
+bool isListComprehension(const shared_ptr<Expression> &e) {
+	return dynamic_cast<const ListComprehension *>(e.get());
+}
 
-	Value::VectorType flatten(Value::VectorType const& vec) {
-		int n = 0;
-		for (unsigned int i = 0; i < vec.size(); i++) {
-			assert(vec[i]->type() == Value::ValueType::VECTOR);
-			n += vec[i]->toVector().size();
-		}
-		Value::VectorType ret; ret.reserve(n);
-		for (unsigned int i = 0; i < vec.size(); i++) {
-			std::copy(vec[i]->toVector().begin(),vec[i]->toVector().end(),std::back_inserter(ret));
-		}
-		return ret;
+Value::VectorType flatten(Value::VectorType const &vec) {
+	int n = 0;
+	for (unsigned int i = 0; i < vec.size(); i++) {
+		assert(vec[i]->type() == Value::ValueType::VECTOR);
+		n += vec[i]->toVector().size();
 	}
+	Value::VectorType ret; ret.reserve(n);
+	for (unsigned int i = 0; i < vec.size(); i++) {
+		std::copy(vec[i]->toVector().begin(), vec[i]->toVector().end(), std::back_inserter(ret));
+	}
+	return ret;
+}
 
-	void evaluate_sequential_assignment(const AssignmentList &assignment_list, Context *context) {
-		EvalContext ctx(context, assignment_list);
-		ctx.assignTo(*context);
-	}
+void evaluate_sequential_assignment(const AssignmentList &assignment_list, Context *context) {
+	EvalContext ctx(context, assignment_list);
+	ctx.assignTo(*context);
+}
 }
 
 namespace /* anonymous*/ {
 
-	std::ostream &operator << (std::ostream &o, AssignmentList const& l) {
-		for (size_t i=0; i < l.size(); i++) {
-			const Assignment &arg = l[i];
-			if (i > 0) o << ", ";
-			if (!arg.name.empty()) o << arg.name  << " = ";
-			o << *arg.expr;
-		}
-		return o;
+std::ostream &operator<<(std::ostream &o, AssignmentList const &l) {
+	for (size_t i = 0; i < l.size(); i++) {
+		const Assignment &arg = l[i];
+		if (i > 0) o << ", ";
+		if (!arg.name.empty()) o << arg.name << " = ";
+		o << *arg.expr;
 	}
+	return o;
+}
 
 }
 
 bool Expression::isLiteral() const
 {
-    return false;
+	return false;
 }
 
 UnaryOp::UnaryOp(UnaryOp::Op op, Expression *expr, const Location &loc) : Expression(loc), op(op), expr(expr)
@@ -115,11 +115,10 @@ const char *UnaryOp::opString() const
 	}
 }
 
-bool UnaryOp::isLiteral() const { 
+bool UnaryOp::isLiteral() const {
 
-    if(this->expr->isLiteral()) 
-        return true;
-    return false;
+	if (this->expr->isLiteral()) return true;
+	return false;
 }
 
 void UnaryOp::print(std::ostream &stream) const
@@ -273,7 +272,7 @@ ValuePtr Literal::evaluate(const class Context *) const
 
 void Literal::print(std::ostream &stream) const
 {
-    stream << *this->value;
+	stream << *this->value;
 }
 
 Range::Range(Expression *begin, Expression *end, const Location &loc)
@@ -295,7 +294,8 @@ ValuePtr Range::evaluate(const Context *context) const
 			if (!this->step) {
 				RangeType range(beginValue->toDouble(), endValue->toDouble());
 				return ValuePtr(range);
-			} else {
+			}
+			else {
 				ValuePtr stepValue = this->step->evaluate(context);
 				if (stepValue->type() == Value::ValueType::NUMBER) {
 					RangeType range(beginValue->toDouble(), stepValue->toDouble(), endValue->toDouble());
@@ -316,14 +316,13 @@ void Range::print(std::ostream &stream) const
 }
 
 bool Range::isLiteral() const {
-    if(!this->step){ 
-        if( begin->isLiteral() && end->isLiteral())
-            return true;
-    }else{
-        if( begin->isLiteral() && end->isLiteral() && step->isLiteral())
-            return true;
-    }
-    return false;
+	if (!this->step) {
+		if (begin->isLiteral() && end->isLiteral()) return true;
+	}
+	else {
+		if (begin->isLiteral() && end->isLiteral() && step->isLiteral()) return true;
+	}
+	return false;
 }
 
 Vector::Vector(const Location &loc) : Expression(loc)
@@ -331,12 +330,12 @@ Vector::Vector(const Location &loc) : Expression(loc)
 }
 
 bool Vector::isLiteral() const {
-    for(const auto &e : this->children) {
-        if (!e->isLiteral()){
-            return false;
-        }
-    } 
-    return true;
+	for (const auto &e : this->children) {
+		if (!e->isLiteral()) {
+			return false;
+		}
+	}
+	return true;
 }
 
 void Vector::push_back(Expression *expr)
@@ -347,14 +346,15 @@ void Vector::push_back(Expression *expr)
 ValuePtr Vector::evaluate(const Context *context) const
 {
 	Value::VectorType vec;
-	for(const auto &e : this->children) {
+	for (const auto &e : this->children) {
 		ValuePtr tmpval = e->evaluate(context);
 		if (isListComprehension(e)) {
 			const Value::VectorType result = tmpval->toVector();
-			for (size_t i = 0;i < result.size();i++) {
+			for (size_t i = 0; i < result.size(); i++) {
 				vec.push_back(result[i]);
 			}
-		} else {
+		}
+		else {
 			vec.push_back(tmpval);
 		}
 	}
@@ -364,7 +364,7 @@ ValuePtr Vector::evaluate(const Context *context) const
 void Vector::print(std::ostream &stream) const
 {
 	stream << "[";
-	for (size_t i=0; i < this->children.size(); i++) {
+	for (size_t i = 0; i < this->children.size(); i++) {
 		if (i > 0) stream << ", ";
 		stream << *this->children[i];
 	}
@@ -398,7 +398,8 @@ ValuePtr MemberLookup::evaluate(const Context *context) const
 		if (this->member == "x") return v[0];
 		if (this->member == "y") return v[1];
 		if (this->member == "z") return v[2];
-	} else if (v->type() == Value::ValueType::RANGE) {
+	}
+	else if (v->type() == Value::ValueType::RANGE) {
 		if (this->member == "begin") return v[0];
 		if (this->member == "step") return v[1];
 		if (this->member == "end") return v[2];
@@ -411,7 +412,7 @@ void MemberLookup::print(std::ostream &stream) const
 	stream << *this->expr << "." << this->member;
 }
 
-FunctionCall::FunctionCall(const std::string &name, 
+FunctionCall::FunctionCall(const std::string &name,
 													 const AssignmentList &args, const Location &loc)
 	: Expression(loc), name(name), arguments(args)
 {
@@ -422,7 +423,7 @@ ValuePtr FunctionCall::evaluate(const Context *context) const
 	if (StackCheck::inst()->check()) {
 		throw RecursionException::create("function", this->name);
 	}
-    
+
 	EvalContext c(context, this->arguments);
 	ValuePtr result = context->evaluate_function(this->name, &c);
 
@@ -434,13 +435,15 @@ void FunctionCall::print(std::ostream &stream) const
 	stream << this->name << "(" << this->arguments << ")";
 }
 
-Expression * FunctionCall::create(const std::string &funcname, const AssignmentList &arglist, Expression *expr, const Location &loc)
+Expression *FunctionCall::create(const std::string &funcname, const AssignmentList &arglist, Expression *expr, const Location &loc)
 {
 	if (funcname == "assert" && Feature::ExperimentalAssertExpression.is_enabled()) {
 		return new Assert(arglist, expr, loc);
-	} else if (funcname == "echo" && Feature::ExperimentalEchoExpression.is_enabled()) {
+	}
+	else if (funcname == "echo" && Feature::ExperimentalEchoExpression.is_enabled()) {
 		return new Echo(arglist, expr, loc);
-	} else if (funcname == "let") {
+	}
+	else if (funcname == "let") {
 		return new Let(arglist, expr, loc);
 	}
 
@@ -525,30 +528,31 @@ LcIf::LcIf(Expression *cond, Expression *ifexpr, Expression *elseexpr, const Loc
 
 ValuePtr LcIf::evaluate(const Context *context) const
 {
-    if (this->elseexpr) {
-    	ExperimentalFeatureException::check(Feature::ExperimentalElseExpression);
-    }
+	if (this->elseexpr) {
+		ExperimentalFeatureException::check(Feature::ExperimentalElseExpression);
+	}
 
-    const shared_ptr<Expression> &expr = this->cond->evaluate(context) ? this->ifexpr : this->elseexpr;
-	
-    Value::VectorType vec;
-    if (expr) {
-        if (isListComprehension(expr)) {
-            return expr->evaluate(context);
-        } else {
-           vec.push_back(expr->evaluate(context));
-        }
-    }
+	const shared_ptr<Expression> &expr = this->cond->evaluate(context) ? this->ifexpr : this->elseexpr;
 
-    return ValuePtr(vec);
+	Value::VectorType vec;
+	if (expr) {
+		if (isListComprehension(expr)) {
+			return expr->evaluate(context);
+		}
+		else {
+			vec.push_back(expr->evaluate(context));
+		}
+	}
+
+	return ValuePtr(vec);
 }
 
 void LcIf::print(std::ostream &stream) const
 {
-    stream << "if(" << *this->cond << ") (" << *this->ifexpr << ")";
-    if (this->elseexpr) {
-        stream << " else (" << *this->elseexpr << ")";
-    }
+	stream << "if(" << *this->cond << ") (" << *this->ifexpr << ")";
+	if (this->elseexpr) {
+		stream << " else (" << *this->elseexpr << ")";
+	}
 }
 
 LcEach::LcEach(Expression *expr, const Location &loc) : ListComprehension(loc), expr(expr)
@@ -561,37 +565,41 @@ ValuePtr LcEach::evaluate(const Context *context) const
 
 	Value::VectorType vec;
 
-    ValuePtr v = this->expr->evaluate(context);
+	ValuePtr v = this->expr->evaluate(context);
 
-    if (v->type() == Value::ValueType::RANGE) {
-        RangeType range = v->toRange();
-        uint32_t steps = range.numValues();
-        if (steps >= 1000000) {
-            PRINTB("WARNING: Bad range parameter in for statement: too many elements (%lu).", steps);
-        } else {
-            for (RangeType::iterator it = range.begin();it != range.end();it++) {
-                vec.push_back(ValuePtr(*it));
-            }
-        }
-    } else if (v->type() == Value::ValueType::VECTOR) {
-        Value::VectorType vector = v->toVector();
-        for (size_t i = 0; i < v->toVector().size(); i++) {
-            vec.push_back(vector[i]);
-        }
-    } else if (v->type() != Value::ValueType::UNDEFINED) {
-        vec.push_back(v);
-    }
+	if (v->type() == Value::ValueType::RANGE) {
+		RangeType range = v->toRange();
+		uint32_t steps = range.numValues();
+		if (steps >= 1000000) {
+			PRINTB("WARNING: Bad range parameter in for statement: too many elements (%lu).", steps);
+		}
+		else {
+			for (RangeType::iterator it = range.begin(); it != range.end(); it++) {
+				vec.push_back(ValuePtr(*it));
+			}
+		}
+	}
+	else if (v->type() == Value::ValueType::VECTOR) {
+		Value::VectorType vector = v->toVector();
+		for (size_t i = 0; i < v->toVector().size(); i++) {
+			vec.push_back(vector[i]);
+		}
+	}
+	else if (v->type() != Value::ValueType::UNDEFINED) {
+		vec.push_back(v);
+	}
 
-    if (isListComprehension(this->expr)) {
-        return ValuePtr(flatten(vec));
-    } else {
-        return ValuePtr(vec);
-    }
+	if (isListComprehension(this->expr)) {
+		return ValuePtr(flatten(vec));
+	}
+	else {
+		return ValuePtr(vec);
+	}
 }
 
 void LcEach::print(std::ostream &stream) const
 {
-    stream << "each (" << *this->expr << ")";
+	stream << "each (" << *this->expr << ")";
 }
 
 LcFor::LcFor(const AssignmentList &args, Expression *expr, const Location &loc)
@@ -603,47 +611,51 @@ ValuePtr LcFor::evaluate(const Context *context) const
 {
 	Value::VectorType vec;
 
-    EvalContext for_context(context, this->arguments);
+	EvalContext for_context(context, this->arguments);
 
-    Context assign_context(context);
+	Context assign_context(context);
 
-    // comprehension for statements are by the parser reduced to only contain one single element
-    const std::string &it_name = for_context.getArgName(0);
-    ValuePtr it_values = for_context.getArgValue(0, &assign_context);
+	// comprehension for statements are by the parser reduced to only contain one single element
+	const std::string &it_name = for_context.getArgName(0);
+	ValuePtr it_values = for_context.getArgValue(0, &assign_context);
 
-    Context c(context);
+	Context c(context);
 
-    if (it_values->type() == Value::ValueType::RANGE) {
-        RangeType range = it_values->toRange();
-        uint32_t steps = range.numValues();
-        if (steps >= 1000000) {
-            PRINTB("WARNING: Bad range parameter in for statement: too many elements (%lu).", steps);
-        } else {
-            for (RangeType::iterator it = range.begin();it != range.end();it++) {
-                c.set_variable(it_name, ValuePtr(*it));
-                vec.push_back(this->expr->evaluate(&c));
-            }
-        }
-    } else if (it_values->type() == Value::ValueType::VECTOR) {
-        for (size_t i = 0; i < it_values->toVector().size(); i++) {
-            c.set_variable(it_name, it_values->toVector()[i]);
-            vec.push_back(this->expr->evaluate(&c));
-        }
-    } else if (it_values->type() != Value::ValueType::UNDEFINED) {
-        c.set_variable(it_name, it_values);
-        vec.push_back(this->expr->evaluate(&c));
-    }
+	if (it_values->type() == Value::ValueType::RANGE) {
+		RangeType range = it_values->toRange();
+		uint32_t steps = range.numValues();
+		if (steps >= 1000000) {
+			PRINTB("WARNING: Bad range parameter in for statement: too many elements (%lu).", steps);
+		}
+		else {
+			for (RangeType::iterator it = range.begin(); it != range.end(); it++) {
+				c.set_variable(it_name, ValuePtr(*it));
+				vec.push_back(this->expr->evaluate(&c));
+			}
+		}
+	}
+	else if (it_values->type() == Value::ValueType::VECTOR) {
+		for (size_t i = 0; i < it_values->toVector().size(); i++) {
+			c.set_variable(it_name, it_values->toVector()[i]);
+			vec.push_back(this->expr->evaluate(&c));
+		}
+	}
+	else if (it_values->type() != Value::ValueType::UNDEFINED) {
+		c.set_variable(it_name, it_values);
+		vec.push_back(this->expr->evaluate(&c));
+	}
 
-    if (isListComprehension(this->expr)) {
-        return ValuePtr(flatten(vec));
-    } else {
-        return ValuePtr(vec);
-    }
+	if (isListComprehension(this->expr)) {
+		return ValuePtr(flatten(vec));
+	}
+	else {
+		return ValuePtr(vec);
+	}
 }
 
 void LcFor::print(std::ostream &stream) const
 {
-    stream << "for(" << this->arguments << ") (" << *this->expr << ")";
+	stream << "for(" << this->arguments << ") (" << *this->expr << ")";
 }
 
 LcForC::LcForC(const AssignmentList &args, const AssignmentList &incrargs, Expression *cond, Expression *expr, const Location &loc)
@@ -657,34 +669,35 @@ ValuePtr LcForC::evaluate(const Context *context) const
 
 	Value::VectorType vec;
 
-    Context c(context);
-    evaluate_sequential_assignment(this->arguments, &c);
+	Context c(context);
+	evaluate_sequential_assignment(this->arguments, &c);
 
 	unsigned int counter = 0;
-    while (this->cond->evaluate(&c)) {
-        vec.push_back(this->expr->evaluate(&c));
+	while (this->cond->evaluate(&c)) {
+		vec.push_back(this->expr->evaluate(&c));
 
 		if (counter++ == 1000000) throw RecursionException::create("for loop", "");
 
-        Context tmp(&c);
-        evaluate_sequential_assignment(this->incr_arguments, &tmp);
-        c.apply_variables(tmp);
-    }    
+		Context tmp(&c);
+		evaluate_sequential_assignment(this->incr_arguments, &tmp);
+		c.apply_variables(tmp);
+	}
 
-    if (isListComprehension(this->expr)) {
-        return ValuePtr(flatten(vec));
-    } else {
-        return ValuePtr(vec);
-    }
+	if (isListComprehension(this->expr)) {
+		return ValuePtr(flatten(vec));
+	}
+	else {
+		return ValuePtr(vec);
+	}
 }
 
 void LcForC::print(std::ostream &stream) const
 {
-    stream
-        << "for(" << this->arguments
-        << ";" << *this->cond
-        << ";" << this->incr_arguments
-        << ") " << *this->expr;
+	stream
+		<< "for(" << this->arguments
+		<< ";" << *this->cond
+		<< ";" << this->incr_arguments
+		<< ") " << *this->expr;
 }
 
 LcLet::LcLet(const AssignmentList &args, Expression *expr, const Location &loc)
@@ -694,14 +707,14 @@ LcLet::LcLet(const AssignmentList &args, Expression *expr, const Location &loc)
 
 ValuePtr LcLet::evaluate(const Context *context) const
 {
-    Context c(context);
-    evaluate_sequential_assignment(this->arguments, &c);
-    return this->expr->evaluate(&c);
+	Context c(context);
+	evaluate_sequential_assignment(this->arguments, &c);
+	return this->expr->evaluate(&c);
 }
 
 void LcLet::print(std::ostream &stream) const
 {
-    stream << "let(" << this->arguments << ") (" << *this->expr << ")";
+	stream << "let(" << this->arguments << ") (" << *this->expr << ")";
 }
 
 std::ostream &operator<<(std::ostream &stream, const Expression &expr)
@@ -726,7 +739,7 @@ void evaluate_assert(const Context &context, const class EvalContext *evalctx, c
 			c.set_variable(arg.name, assignments[arg.name]->evaluate(evalctx));
 		}
 	}
-	
+
 	const ValuePtr condition = c.lookup_variable("condition");
 
 	if (!condition->toBool()) {

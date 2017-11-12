@@ -2,7 +2,7 @@
 #include "node.h"
 
 int progress_report_count;
-void (*progress_report_f)(const class AbstractNode*, void*, int);
+void (*progress_report_f)(const class AbstractNode *, void *, int);
 void *progress_report_userdata;
 
 void progress_report_prep(AbstractNode *root, void (*f)(const class AbstractNode *node, void *userdata, int mark), void *userdata)
@@ -22,7 +22,6 @@ void progress_report_fin()
 
 void progress_update(const AbstractNode *node, int mark)
 {
-	if (progress_report_f)
-		progress_report_f(node, progress_report_userdata, mark);
+	if (progress_report_f) progress_report_f(node, progress_report_userdata, mark);
 }
 

@@ -29,8 +29,8 @@ ScadLexer::ScadLexer(QObject *parent) : QsciLexerCPP(parent)
 		"projection render surface scale rotate mirror translate "
 		"multmatrix color offset ";
 
-    setFoldComments(true);
-    setFoldAtElse(true);
+	setFoldComments(true);
+	setFoldAtElse(true);
 }
 
 ScadLexer::~ScadLexer()
@@ -42,14 +42,14 @@ const char *ScadLexer::language() const
 	return "SCAD";
 }
 
-void ScadLexer::setKeywords(int set, const std::string& keywords)
+void ScadLexer::setKeywords(int set, const std::string &keywords)
 {
 	if ((set < 1) || (set > 4)) {
 		return;
 	}
 
 	std::string trimmedKeywords(keywords);
-        boost::algorithm::trim(trimmedKeywords);
+	boost::algorithm::trim(trimmedKeywords);
 	if (trimmedKeywords.empty()) {
 		return;
 	}

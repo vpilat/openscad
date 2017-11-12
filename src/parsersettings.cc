@@ -14,12 +14,12 @@ static void add_librarydir(const std::string &libdir)
 }
 
 /*!
-	Searces for the given file in library paths and returns the full path if found.
-	Returns an empty path if file cannot be found or filename is a directory.
-*/
+   Searces for the given file in library paths and returns the full path if found.
+   Returns an empty path if file cannot be found or filename is a directory.
+ */
 fs::path search_libs(const fs::path &localpath)
 {
-	for(const auto &dir : librarypath) {
+	for (const auto &dir : librarypath) {
 		fs::path usepath = fs::path(dir) / localpath;
 		if (fs::exists(usepath) && !fs::is_directory(usepath)) {
 			return usepath.string();
@@ -50,9 +50,9 @@ static bool check_valid(const fs::path &p, const std::vector<std::string> *openf
 		return false;
 	}
 	std::string fullname = p.generic_string();
-  // Detect circular includes
+	// Detect circular includes
 	if (openfilenames) {
-		for(const auto &s : *openfilenames) {
+		for (const auto &s : *openfilenames) {
 			if (s == fullname) {
 //				PRINTB("WARNING: circular include file %s", fullname);
 				return false;
@@ -63,15 +63,15 @@ static bool check_valid(const fs::path &p, const std::vector<std::string> *openf
 }
 
 /*!
-	Check if the given filename is valid.
+   Check if the given filename is valid.
 
-	If the given filename is absolute, do a simple check.
-	If not, search the applicable paths for a valid file.
+   If the given filename is absolute, do a simple check.
+   If not, search the applicable paths for a valid file.
 
-	Returns the absolute path to a valid file, or an empty path if no
-	valid files could be found.
-*/
-fs::path find_valid_path(const fs::path &sourcepath, 
+   Returns the absolute path to a valid file, or an empty path if no
+   valid files could be found.
+ */
+fs::path find_valid_path(const fs::path &sourcepath,
 												 const fs::path &localpath,
 												 const std::vector<std::string> *openfilenames)
 {

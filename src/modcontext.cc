@@ -25,20 +25,20 @@ void ModuleContext::evaluateAssignments(const AssignmentList &assignments)
 {
 	// First, assign all simple variables
 	std::list<std::string> undefined_vars;
- 	for (const auto &ass : assignments) {
+	for (const auto &ass : assignments) {
 		ValuePtr tmpval = ass.second->evaluate(this);
 		if (tmpval->isUndefined()) undefined_vars.push_back(ass.first);
- 		else this->set_variable(ass.first, tmpval);
- 	}
+		else this->set_variable(ass.first, tmpval);
+	}
 
 	// Variables which couldn't be evaluated in the first pass is attempted again,
-  // to allow for initialization out of order
+	// to allow for initialization out of order
 
 	std::unordered_map<std::string, Expression *> tmpass;
-	for(const auto &ass : assignments) {
+	for (const auto &ass : assignments) {
 		tmpass[ass.first] = ass.second;
 	}
-		
+
 	bool changed = true;
 	while (changed) {
 		changed = false;
@@ -62,7 +62,7 @@ void ModuleContext::evaluateAssignments(const AssignmentList &assignments)
 		}
 	}
 }
-#endif
+#endif // if 0
 
 void ModuleContext::initializeModule(const UserModule &module)
 {
@@ -79,8 +79,8 @@ void ModuleContext::initializeModule(const UserModule &module)
 }
 
 /*!
-	Only used to initialize builtins for the top-level root context
-*/
+   Only used to initialize builtins for the top-level root context
+ */
 void ModuleContext::registerBuiltin()
 {
 	const auto &scope = Builtins::instance()->getGlobalScope();
@@ -125,8 +125,8 @@ const AbstractModule *ModuleContext::findLocalModule(const std::string &name) co
 	return nullptr;
 }
 
-ValuePtr ModuleContext::evaluate_function(const std::string &name, 
-																												 const EvalContext *evalctx) const
+ValuePtr ModuleContext::evaluate_function(const std::string &name,
+																					const EvalContext *evalctx) const
 {
 	const auto foundf = findLocalFunction(name);
 	if (foundf) return foundf->evaluate(this, evalctx);
@@ -154,34 +154,34 @@ std::string ModuleContext::dump(const AbstractModule *mod, const ModuleInstantia
 	}
 	s << boost::format("  document path: %s") % this->document_path;
 	if (mod) {
-		const UserModule *m = dynamic_cast<const UserModule*>(mod);
+		const UserModule *m = dynamic_cast<const UserModule *>(mod);
 		if (m) {
 			s << "  module args:";
-			for(const auto &arg : m->definition_arguments) {
+			for (const auto &arg : m->definition_arguments) {
 				s << boost::format("    %s = %s") % arg.name % variables[arg.name];
 			}
 		}
 	}
 	typedef std::pair<std::string, ValuePtr> ValueMapType;
 	s << "  vars:";
-	for(const auto &v : constants) {
+	for (const auto &v : constants) {
 		s << boost::format("    %s = %s") % v.first % v.second;
 	}
-	for(const auto &v : variables) {
+	for (const auto &v : variables) {
 		s << boost::format("    %s = %s") % v.first % v.second;
 	}
-	for(const auto &v : config_variables) {
+	for (const auto &v : config_variables) {
 		s << boost::format("    %s = %s") % v.first % v.second;
 	}
 	return s.str();
 }
-#endif
+#endif // ifdef DEBUG
 
 FileContext::FileContext(const Context *parent) : ModuleContext(parent), usedlibs_p(nullptr)
 {
 }
 
-ValuePtr FileContext::sub_evaluate_function(const std::string &name, 
+ValuePtr FileContext::sub_evaluate_function(const std::string &name,
 																						const EvalContext *evalctx,
 																						FileModule *usedmod) const
 {
@@ -190,13 +190,13 @@ ValuePtr FileContext::sub_evaluate_function(const std::string &name,
 	// FIXME: Set document path
 #ifdef DEBUG
 	PRINTDB("New lib Context for %s func:", name);
-	PRINTDB("%s",ctx.dump(nullptr, nullptr));
+	PRINTDB("%s", ctx.dump(nullptr, nullptr));
 #endif
 	return usedmod->scope.functions[name]->evaluate(&ctx, evalctx);
 }
 
-ValuePtr FileContext::evaluate_function(const std::string &name, 
-																											 const EvalContext *evalctx) const
+ValuePtr FileContext::evaluate_function(const std::string &name,
+																				const EvalContext *evalctx) const
 {
 	const auto foundf = findLocalFunction(name);
 	if (foundf) return foundf->evaluate(this, evalctx);
@@ -204,8 +204,7 @@ ValuePtr FileContext::evaluate_function(const std::string &name,
 	for (const auto &m : *this->usedlibs_p) {
 		// usedmod is nullptr if the library wasn't be compiled (error or file-not-found)
 		auto usedmod = ModuleCache::instance()->lookup(m);
-		if (usedmod && usedmod->scope.functions.find(name) != usedmod->scope.functions.end())
-			return sub_evaluate_function(name, evalctx, usedmod);
+		if (usedmod && usedmod->scope.functions.find(name) != usedmod->scope.functions.end()) return sub_evaluate_function(name, evalctx, usedmod);
 	}
 
 	return ModuleContext::evaluate_function(name, evalctx);
@@ -226,7 +225,7 @@ AbstractNode *FileContext::instantiate_module(const ModuleInstantiation &inst, E
 			// FIXME: Set document path
 #ifdef DEBUG
 			PRINTD("New file Context:");
-			PRINTDB("%s",ctx.dump(nullptr, &inst));
+			PRINTDB("%s", ctx.dump(nullptr, &inst));
 #endif
 			return usedmod->scope.modules[inst.name()]->instantiate(&ctx, &inst, evalctx);
 		}

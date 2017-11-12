@@ -27,7 +27,7 @@ void QWordSearchField::resizeSearchField()
 {
 	auto size = fieldLabel->sizeHint();
 	auto frameWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
-	fieldLabel->move(rect().right() - frameWidth - size.width(), (rect().bottom() + 1 - size.height())/2);
+	fieldLabel->move(rect().right() - frameWidth - size.width(), (rect().bottom() + 1 - size.height()) / 2);
 }
 
 
@@ -36,13 +36,14 @@ void QWordSearchField::updateFieldLabel()
 	if (findcount > 0) {
 		fieldLabel->setText(QString::number(findcount));
 		fieldLabel->setVisible(true);
-	} else {
+	}
+	else {
 		fieldLabel->setText(QString(""));
 		fieldLabel->setVisible(false);
 	}
 	resizeSearchField();
 }
-    
+
 void QWordSearchField::setFindCount(int value)
 {
 	if (value != findcount) {

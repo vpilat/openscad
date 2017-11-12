@@ -22,16 +22,16 @@
 #include <cstddef>
 
 /*!
-	\class CSGTreeEvaluator
+   \class CSGTreeEvaluator
 
-	A visitor responsible for creating a binary tree of CSGNode nodes used for rendering
-	with OpenCSG.
-*/
+   A visitor responsible for creating a binary tree of CSGNode nodes used for rendering
+   with OpenCSG.
+ */
 
 shared_ptr<CSGNode> CSGTreeEvaluator::buildCSGTree(const AbstractNode &node)
 {
 	this->traverse(node);
-	
+
 	shared_ptr<CSGNode> t(this->stored_term[node.index()]);
 	if (t) {
 		if (t->isHighlight()) this->highlightNodes.push_back(t);
@@ -46,7 +46,7 @@ shared_ptr<CSGNode> CSGTreeEvaluator::buildCSGTree(const AbstractNode &node)
 
 void CSGTreeEvaluator::applyBackgroundAndHighlight(State & /*state*/, const AbstractNode &node)
 {
-	for(const auto &chnode : this->visitedchildren[node.index()]) {
+	for (const auto &chnode : this->visitedchildren[node.index()]) {
 		shared_ptr<CSGNode> t(this->stored_term[chnode->index()]);
 		this->stored_term.erase(chnode->index());
 		if (t) {
@@ -59,17 +59,18 @@ void CSGTreeEvaluator::applyBackgroundAndHighlight(State & /*state*/, const Abst
 void CSGTreeEvaluator::applyToChildren(State & /*state*/, const AbstractNode &node, OpenSCADOperator op)
 {
 	shared_ptr<CSGNode> t1;
-	for(const auto &chnode : this->visitedchildren[node.index()]) {
+	for (const auto &chnode : this->visitedchildren[node.index()]) {
 		shared_ptr<CSGNode> t2(this->stored_term[chnode->index()]);
 		this->stored_term.erase(chnode->index());
 		if (t2 && !t1) {
 			t1 = t2;
-		} else if (t2 && t1) {
+		}
+		else if (t2 && t1) {
 
 			shared_ptr<CSGNode> t;
 			// Handle background
-			if (t1->isBackground() && 
-					// For difference, we inherit the flag from the positive object
+			if (t1->isBackground() &&
+			    // For difference, we inherit the flag from the positive object
 					(t2->isBackground() || op == OpenSCADOperator::DIFFERENCE)) {
 				t = CSGOperation::createCSGNode(op, t1, t2);
 				t->setBackground(true);
@@ -87,48 +88,48 @@ void CSGTreeEvaluator::applyToChildren(State & /*state*/, const AbstractNode &no
 				t = CSGOperation::createCSGNode(op, t1, t2);
 			}
 			// Handle highlight
-				switch (op) {
-				case OpenSCADOperator::DIFFERENCE:
-					if (t != t1 && t1->isHighlight()) {
-						t->setHighlight(true);
-					}
-					else if (t != t2 && t2->isHighlight()) {
-						this->highlightNodes.push_back(t2);
-					}
-					break;
-				case OpenSCADOperator::INTERSECTION:
-					if (t && t != t1 && t != t2 &&
-							t1->isHighlight() && t2->isHighlight()) {
-						t->setHighlight(true);
-					}
-					else {
-						if (t != t1 && t1->isHighlight()) {
-							this->highlightNodes.push_back(t1);
-						}
-						if (t != t2 && t2->isHighlight()) {
-							this->highlightNodes.push_back(t2);
-						}
-					}
-					break;
-				case OpenSCADOperator::UNION:
-					if (t != t1 && t != t2 &&
-							t1->isHighlight() && t2->isHighlight()) {
-						t->setHighlight(true);
-					}
-					else if (t != t1 && t1->isHighlight()) {
-						this->highlightNodes.push_back(t1);
-						t = t2;
-					}
-					else if (t != t2 && t2->isHighlight()) {
-						this->highlightNodes.push_back(t2);
-						t = t1;
-					}
-					break;
-                case OpenSCADOperator::MINKOWSKI:
-                case OpenSCADOperator::HULL:
-                case OpenSCADOperator::RESIZE:
-                    break;
+			switch (op) {
+			case OpenSCADOperator::DIFFERENCE:
+				if (t != t1 && t1->isHighlight()) {
+					t->setHighlight(true);
 				}
+				else if (t != t2 && t2->isHighlight()) {
+					this->highlightNodes.push_back(t2);
+				}
+				break;
+			case OpenSCADOperator::INTERSECTION:
+				if (t && t != t1 && t != t2 &&
+						t1->isHighlight() && t2->isHighlight()) {
+					t->setHighlight(true);
+				}
+				else {
+					if (t != t1 && t1->isHighlight()) {
+						this->highlightNodes.push_back(t1);
+					}
+					if (t != t2 && t2->isHighlight()) {
+						this->highlightNodes.push_back(t2);
+					}
+				}
+				break;
+			case OpenSCADOperator::UNION:
+				if (t != t1 && t != t2 &&
+						t1->isHighlight() && t2->isHighlight()) {
+					t->setHighlight(true);
+				}
+				else if (t != t1 && t1->isHighlight()) {
+					this->highlightNodes.push_back(t1);
+					t = t2;
+				}
+				else if (t != t2 && t2->isHighlight()) {
+					this->highlightNodes.push_back(t2);
+					t = t1;
+				}
+				break;
+			case OpenSCADOperator::MINKOWSKI:
+			case OpenSCADOperator::HULL:
+			case OpenSCADOperator::RESIZE:
+				break;
+			}
 			t1 = t;
 		}
 	}
@@ -270,7 +271,7 @@ Response CSGTreeEvaluator::visit(State &state, const CgaladvNode &node)
 {
 	if (state.isPostfix()) {
 		shared_ptr<CSGNode> t1;
-    // FIXME: Calling evaluator directly since we're not a PolyNode. Generalize this.
+		// FIXME: Calling evaluator directly since we're not a PolyNode. Generalize this.
 		shared_ptr<const Geometry> geom;
 		if (this->geomevaluator) {
 			geom = this->geomevaluator->evaluateGeometry(node, false);
@@ -287,10 +288,10 @@ Response CSGTreeEvaluator::visit(State &state, const CgaladvNode &node)
 }
 
 /*!
-	Adds ourself to out parent's list of traversed children.
-	Call this for _every_ node which affects output during traversal.
+   Adds ourself to out parent's list of traversed children.
+   Call this for _every_ node which affects output during traversal.
     Usually, this should be called from the postfix stage, but for some nodes, we defer traversal letting other components (e.g. CGAL) render the subgraph, and we'll then call this from prefix and prune further traversal.
-*/
+ */
 void CSGTreeEvaluator::addToParent(const State &state, const AbstractNode &node)
 {
 	this->visitedchildren.erase(node.index());

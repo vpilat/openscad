@@ -35,7 +35,7 @@
 #include <boost/filesystem.hpp>
 namespace fs = boost::filesystem;
 
-// $children is not a config_variable. config_variables have dynamic scope, 
+// $children is not a config_variable. config_variables have dynamic scope,
 // meaning they are passed down the call chain implicitly.
 // $children is simply misnamed and shouldn't have included the '$'.
 static bool is_config_variable(const std::string &name)
@@ -44,10 +44,10 @@ static bool is_config_variable(const std::string &name)
 }
 
 /*!
-	Initializes this context. Optionally initializes a context for an 
-	external library. Note that if parent is null, a new stack will be
-	created, and all children will share the root parent's stack.
-*/
+   Initializes this context. Optionally initializes a context for an
+   external library. Note that if parent is null, a new stack will be
+   created, and all children will share the root parent's stack.
+ */
 Context::Context(const Context *parent)
 	: parent(parent)
 {
@@ -71,22 +71,22 @@ Context::~Context()
 }
 
 /*!
-	Initialize context from a module argument list and a evaluation context
-	which may pass variables which will be preferred over default values.
-*/
+   Initialize context from a module argument list and a evaluation context
+   which may pass variables which will be preferred over default values.
+ */
 void Context::setVariables(const AssignmentList &args, const EvalContext *evalctx)
 {
-  // Set any default values
-  for (const auto &arg : args) {
-    set_variable(arg.name, arg.expr ? arg.expr->evaluate(this->parent) : ValuePtr::undefined);
-  }
-	
-  if (evalctx) {
+	// Set any default values
+	for (const auto &arg : args) {
+		set_variable(arg.name, arg.expr ? arg.expr->evaluate(this->parent) : ValuePtr::undefined);
+	}
+
+	if (evalctx) {
 		auto assignments = evalctx->resolveArguments(args);
 		for (const auto &ass : assignments) {
 			this->set_variable(ass.first, ass.second->evaluate(evalctx));
-    }
-  }
+		}
+	}
 }
 
 void Context::set_variable(const std::string &name, const ValuePtr &value)
@@ -129,7 +129,7 @@ ValuePtr Context::lookup_variable(const std::string &name, bool silent) const
 		return ValuePtr::undefined;
 	}
 	if (is_config_variable(name)) {
-		for (int i = this->ctx_stack->size()-1; i >= 0; i--) {
+		for (int i = this->ctx_stack->size() - 1; i >= 0; i--) {
 			const auto &confvars = ctx_stack->at(i)->config_variables;
 			if (confvars.find(name) != confvars.end()) {
 				return confvars.find(name)->second;
@@ -167,7 +167,7 @@ bool Context::has_local_variable(const std::string &name) const
  * This is separated because PRINTB uses quite a lot of stack space
  * and the methods using it evaluate_function() and instantiate_module()
  * are called often when recursive functions or modules are evaluated.
- * 
+ *
  * @param what what is ignored
  * @param name name of the ignored object
  */
@@ -175,7 +175,7 @@ static void print_ignore_warning(const char *what, const char *name)
 {
 	PRINTB("WARNING: Ignoring unknown %s '%s'.", what % name);
 }
- 
+
 ValuePtr Context::evaluate_function(const std::string &name, const EvalContext *evalctx) const
 {
 	if (this->parent) return this->parent->evaluate_function(name, evalctx);
@@ -191,7 +191,7 @@ AbstractNode *Context::instantiate_module(const ModuleInstantiation &inst, EvalC
 }
 
 /*!
-	Returns the absolute path to the given filename, unless it's empty.
+   Returns the absolute path to the given filename, unless it's empty.
  */
 std::string Context::getAbsolutePath(const std::string &filename) const
 {
@@ -215,26 +215,26 @@ std::string Context::dump(const AbstractModule *mod, const ModuleInstantiation *
 	}
 	s << boost::format("  document path: %s") % this->document_path;
 	if (mod) {
-		const UserModule *m = dynamic_cast<const UserModule*>(mod);
+		const UserModule *m = dynamic_cast<const UserModule *>(mod);
 		if (m) {
 			s << "  module args:";
-			for(const auto &arg : m->definition_arguments) {
+			for (const auto &arg : m->definition_arguments) {
 				s << boost::format("    %s = %s") % arg.name % variables[arg.name];
 			}
 		}
 	}
 	typedef std::pair<std::string, ValuePtr> ValueMapType;
 	s << "  vars:";
-	for(const auto &v : constants) {
+	for (const auto &v : constants) {
 		s << boost::format("    %s = %s") % v.first % v.second;
 	}
-	for(const auto &v : variables) {
+	for (const auto &v : variables) {
 		s << boost::format("    %s = %s") % v.first % v.second;
 	}
-	for(const auto &v : config_variables) {
+	for (const auto &v : config_variables) {
 		s << boost::format("    %s = %s") % v.first % v.second;
 	}
 	return s.str();
 }
-#endif
+#endif // ifdef DEBUG
 

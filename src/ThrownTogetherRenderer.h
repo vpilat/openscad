@@ -14,15 +14,15 @@ public:
 	virtual void draw(bool showfaces, bool showedges) const;
 	virtual BoundingBox getBoundingBox() const;
 private:
-	void renderCSGProducts(const CSGProducts &products, bool highlight_mode, bool background_mode, bool showedges, 
-											bool fberror) const;
+	void renderCSGProducts(const CSGProducts &products, bool highlight_mode, bool background_mode, bool showedges,
+												 bool fberror) const;
 	void renderChainObject(const class CSGChainObject &csgobj, bool highlight_mode,
-												 bool background_mode, bool showedges, bool fberror, OpenSCADOperator type) const;
+													 bool background_mode, bool showedges, bool fberror, OpenSCADOperator type) const;
 
 	shared_ptr<CSGProducts> root_products;
 	shared_ptr<CSGProducts> highlight_products;
 	shared_ptr<CSGProducts> background_products;
-	mutable std::unordered_map<std::pair<const Geometry*,const Transform3d*>,
+	mutable std::unordered_map<std::pair<const Geometry *, const Transform3d *>,
 														 int,
-														 boost::hash<std::pair<const Geometry*,const Transform3d*>>> geomVisitMark;
+														 boost::hash<std::pair<const Geometry *, const Transform3d *>>> geomVisitMark;
 };

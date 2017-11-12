@@ -9,11 +9,11 @@
 #include "memory.h"
 #include "annotation.h"
 
-class Assignment :  public ASTNode
+class Assignment : public ASTNode
 {
 public:
 	Assignment(std::string name, const Location &loc)
-				: ASTNode(loc), name(name) { }
+		: ASTNode(loc), name(name) { }
 	Assignment(std::string name,
 						 shared_ptr<class Expression> expr = shared_ptr<class Expression>(),
 						 const Location &loc = Location::NONE)
@@ -28,7 +28,7 @@ public:
 protected:
 	AnnotationMap annotations;
 };
-       
-       
+
+
 typedef std::vector<Assignment> AssignmentList;
-typedef std::unordered_map<std::string, const Expression*> AssignmentMap;
+typedef std::unordered_map<std::string, const Expression *> AssignmentMap;

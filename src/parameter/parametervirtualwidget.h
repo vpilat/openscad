@@ -8,10 +8,10 @@
 class ParameterVirtualWidget : public QWidget, public Ui::ParameterEntryWidget
 {
 	Q_OBJECT
-	
+
 protected:
 	ParameterObject *object;
-	
+
 public:
 	ParameterVirtualWidget(QWidget *parent = 0);
 	virtual ~ParameterVirtualWidget();
@@ -20,13 +20,13 @@ public:
 
 signals:
 	void changed();
-	
+
 protected:
 	int decimalPrecision;
 	virtual void setPrecision(double number);
 	void setName(QString name);
-	void setDescription(const QString& description) {
-		if(!description.isEmpty()){
+	void setDescription(const QString &description) {
+		if (!description.isEmpty()) {
 			this->labelDescription->show();
 			this->labelDescription->setText(description);
 		}
