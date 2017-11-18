@@ -8,8 +8,8 @@
 class State
 {
 public:
-	State(const class AbstractNode *parent)
-		: flags(NONE), parentnode(parent), numchildren(0) {
+	State(const class AbstractNode *parent) : flags(NONE), parentnode(parent), numchildren(0)
+	{
 		this->matrix_ = Transform3d::Identity();
 		this->color_.fill(-1.0f);
 	}

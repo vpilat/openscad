@@ -4,14 +4,6 @@
 #include <boost/filesystem.hpp>
 namespace fs = boost::filesystem;
 
-ModuleInstantiation::~ModuleInstantiation()
-{
-}
-
-IfElseModuleInstantiation::~IfElseModuleInstantiation()
-{
-}
-
 /*!
    Returns the absolute path to the given filename, unless it's empty.
 
@@ -75,15 +67,14 @@ std::string IfElseModuleInstantiation::dump(const std::string &indent) const
 
 AbstractNode *ModuleInstantiation::evaluate(const Context *ctx) const
 {
-	EvalContext c(ctx, this->arguments, &this->scope);
+	EvalContext c{ctx, this->arguments, &this->scope};
 
 #if 0 && DEBUG
 	PRINT("New eval ctx:");
 	c.dump(nullptr, this);
 #endif
 
-	AbstractNode *node = ctx->instantiate_module(*this, &c); // Passes c as evalctx
-	return node;
+	return ctx->instantiate_module(*this, &c); // Passes c as evalctx
 }
 
 std::vector<AbstractNode *> ModuleInstantiation::instantiateChildren(const Context *evalctx) const

@@ -1,5 +1,6 @@
 #include "printutils.h"
 #include <sstream>
+#include <string>
 #include <stdio.h>
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/predicate.hpp>
@@ -102,9 +103,7 @@ std::string two_digit_exp_format(std::string doublestr)
 
 std::string two_digit_exp_format(double x)
 {
-	std::stringstream s;
-	s << x;
-	return two_digit_exp_format(s.str());
+	return two_digit_exp_format(std::to_string(x));
 }
 
 #include <set>

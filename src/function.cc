@@ -27,28 +27,14 @@
 #include "function.h"
 #include "evalcontext.h"
 #include "expression.h"
-
-AbstractFunction::~AbstractFunction()
-{
-}
-
-UserFunction::UserFunction(const char *name, AssignmentList &definition_arguments, shared_ptr<Expression> expr, const Location &loc)
-	: ASTNode(loc), name(name), definition_arguments(definition_arguments), expr(expr)
-{
-}
-
-UserFunction::~UserFunction()
-{
-}
+#include "stringutils.h"
 
 ValuePtr UserFunction::evaluate(const Context *ctx, const EvalContext *evalctx) const
 {
 	if (!expr) return ValuePtr::undefined;
-	Context c(ctx);
+	Context c{ctx};
 	c.setVariables(definition_arguments, evalctx);
-	ValuePtr result = expr->evaluate(&c);
-
-	return result;
+	return expr->evaluate(&c);
 }
 
 std::string UserFunction::dump(const std::string &indent, const std::string &name) const
@@ -76,10 +62,10 @@ private:
 public:
 	FunctionTailRecursion(const char *name, AssignmentList &definition_arguments,
 												shared_ptr<TernaryOp> expr, shared_ptr<FunctionCall> call,
-												shared_ptr<Expression> endexpr, bool invert,
-												const Location &loc)
-		: UserFunction(name, definition_arguments, expr, loc),
-		invert(invert), op(expr), call(call), endexpr(endexpr) {
+												shared_ptr<Expression> endexpr, bool invert, Location loc)
+		: UserFunction(name, definition_arguments, expr, loc), invert(invert), op(expr), call(call),
+			endexpr(endexpr)
+	{
 	}
 
 	virtual ~FunctionTailRecursion() { }
@@ -87,12 +73,12 @@ public:
 	virtual ValuePtr evaluate(const Context *ctx, const EvalContext *evalctx) const {
 		if (!expr) return ValuePtr::undefined;
 
-		Context c(ctx);
+		Context c{ctx};
 		c.setVariables(definition_arguments, evalctx);
 
-		EvalContext ec(&c, call->arguments);
-		Context tmp(&c);
-		unsigned int counter = 0;
+		EvalContext ec{&c, call->arguments};
+		Context tmp{&c};
+		auto counter = 0u;
 		while (invert ^ this->op->cond->evaluate(&c)) {
 			tmp.setVariables(definition_arguments, &ec);
 			c.apply_variables(tmp);
@@ -100,17 +86,16 @@ public:
 			if (counter++ == 1000000) throw RecursionException::create("function", this->name);
 		}
 
-		ValuePtr result = endexpr->evaluate(&c);
-
-		return result;
+		return endexpr->evaluate(&c);
 	}
 };
 
-UserFunction *UserFunction::create(const char *name, AssignmentList &definition_arguments, shared_ptr<Expression> expr, const Location &loc)
+UserFunction *UserFunction::create(const char *name, AssignmentList &definition_arguments,
+																	 shared_ptr<Expression> expr, Location loc)
 {
-	if (shared_ptr<TernaryOp> ternary = dynamic_pointer_cast<TernaryOp>(expr)) {
-		shared_ptr<FunctionCall> ifcall = dynamic_pointer_cast<FunctionCall>(ternary->ifexpr);
-		shared_ptr<FunctionCall> elsecall = dynamic_pointer_cast<FunctionCall>(ternary->elseexpr);
+	if (auto ternary = dynamic_pointer_cast<TernaryOp>(expr)) {
+		auto ifcall = dynamic_pointer_cast<FunctionCall>(ternary->ifexpr);
+		auto elsecall = dynamic_pointer_cast<FunctionCall>(ternary->elseexpr);
 		if (ifcall && !elsecall) {
 			if (name == ifcall->name) {
 				return new FunctionTailRecursion(name, definition_arguments, ternary, ifcall, ternary->elseexpr, false, loc);
@@ -125,10 +110,6 @@ UserFunction *UserFunction::create(const char *name, AssignmentList &definition_
 	return new UserFunction(name, definition_arguments, expr, loc);
 }
 
-BuiltinFunction::~BuiltinFunction()
-{
-}
-
 ValuePtr BuiltinFunction::evaluate(const Context *ctx, const EvalContext *evalctx) const
 {
 	return eval_func(ctx, evalctx);
@@ -136,7 +117,5 @@ ValuePtr BuiltinFunction::evaluate(const Context *ctx, const EvalContext *evalct
 
 std::string BuiltinFunction::dump(const std::string &indent, const std::string &name) const
 {
-	std::stringstream dump;
-	dump << indent << "builtin function " << name << "();\n";
-	return dump.str();
+	return MakeString() << indent << "builtin function " << name << "();\n";
 }

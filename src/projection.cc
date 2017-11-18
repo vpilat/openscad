@@ -31,26 +31,26 @@
 #include "printutils.h"
 #include "builtin.h"
 #include "polyset.h"
+#include "stringutils.h"
 
 #include <assert.h>
-#include <sstream>
-#include <boost/assign/std/vector.hpp>
-using namespace boost::assign; // bring 'operator+=()' into scope
 
 class ProjectionModule : public AbstractModule
 {
 public:
 	ProjectionModule() { }
-	virtual AbstractNode *instantiate(const Context *ctx, const ModuleInstantiation *inst, EvalContext *evalctx) const;
+	virtual AbstractNode *instantiate(const Context *ctx, const ModuleInstantiation *inst,
+																		EvalContext *evalctx) const override;
 };
 
-AbstractNode *ProjectionModule::instantiate(const Context *ctx, const ModuleInstantiation *inst, EvalContext *evalctx) const
+AbstractNode *ProjectionModule::instantiate(const Context *ctx, const ModuleInstantiation *inst,
+																						EvalContext *evalctx) const
 {
 	auto node = new ProjectionNode(inst);
 
-	AssignmentList args{Assignment("cut")};
+	AssignmentList args{{"cut"}};
 
-	Context c(ctx);
+	Context c{ctx};
 	c.setVariables(args, evalctx);
 	inst->scope.apply(*evalctx);
 
@@ -71,12 +71,8 @@ AbstractNode *ProjectionModule::instantiate(const Context *ctx, const ModuleInst
 
 std::string ProjectionNode::toString() const
 {
-	std::stringstream stream;
-
-	stream << "projection(cut = " << (this->cut_mode ? "true" : "false")
-				 << ", convexity = " << this->convexity << ")";
-
-	return stream.str();
+	return MakeString() << "projection(cut = " << (this->cut_mode ? "true" : "false")
+											<< ", convexity = " << this->convexity << ")";
 }
 
 void register_builtin_projection()

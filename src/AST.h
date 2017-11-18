@@ -1,5 +1,7 @@
 #pragma once
 
+#include <utility>
+
 class Location
 {
 public:
@@ -24,11 +26,11 @@ private:
 class ASTNode
 {
 public:
-	ASTNode(const Location &loc) : loc(loc) {}
+	ASTNode(Location loc) : loc(std::move(loc)) {}
 	virtual ~ASTNode() {}
 
 	const Location &location() const { return loc; }
-	void setLocation(const Location &loc) { this->loc = loc; }
+	void setLocation(Location loc) { this->loc = std::move(loc); }
 
 protected:
 	Location loc;

@@ -30,10 +30,7 @@
 #include "evalcontext.h"
 #include "builtin.h"
 #include "polyset.h"
-
-#include <sstream>
-#include <boost/assign/std/vector.hpp>
-using namespace boost::assign; // bring 'operator+=()' into scope
+#include "stringutils.h"
 
 class RenderModule : public AbstractModule
 {
@@ -46,9 +43,9 @@ AbstractNode *RenderModule::instantiate(const Context *ctx, const ModuleInstanti
 {
 	auto node = new RenderNode(inst);
 
-	AssignmentList args{Assignment("convexity")};
+	AssignmentList args{{"convexity"}};
 
-	Context c(ctx);
+	Context c{ctx};
 	c.setVariables(args, evalctx);
 	inst->scope.apply(*evalctx);
 
@@ -65,11 +62,7 @@ AbstractNode *RenderModule::instantiate(const Context *ctx, const ModuleInstanti
 
 std::string RenderNode::toString() const
 {
-	std::stringstream stream;
-
-	stream << this->name() << "(convexity = " << convexity << ")";
-
-	return stream.str();
+	return MakeString() << this->name() << "(convexity = " << convexity << ")";
 }
 
 void register_builtin_render()

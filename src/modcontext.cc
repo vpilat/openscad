@@ -10,15 +10,6 @@
 #include "ModuleCache.h"
 #include <cmath>
 
-ModuleContext::ModuleContext(const Context *parent, const EvalContext *evalctx)
-	: Context(parent), functions_p(nullptr), modules_p(nullptr), evalctx(evalctx)
-{
-}
-
-ModuleContext::~ModuleContext()
-{
-}
-
 // Experimental code. See issue #399
 #if 0
 void ModuleContext::evaluateAssignments(const AssignmentList &assignments)
@@ -26,7 +17,7 @@ void ModuleContext::evaluateAssignments(const AssignmentList &assignments)
 	// First, assign all simple variables
 	std::list<std::string> undefined_vars;
 	for (const auto &ass : assignments) {
-		ValuePtr tmpval = ass.second->evaluate(this);
+		auto tmpval = ass.second->evaluate(this);
 		if (tmpval->isUndefined()) undefined_vars.push_back(ass.first);
 		else this->set_variable(ass.first, tmpval);
 	}
@@ -42,7 +33,7 @@ void ModuleContext::evaluateAssignments(const AssignmentList &assignments)
 	bool changed = true;
 	while (changed) {
 		changed = false;
-		std::list<std::string>::iterator iter = undefined_vars.begin();
+		auto iter = undefined_vars.begin();
 		while (iter != undefined_vars.end()) {
 			std::list<std::string>::iterator curr = iter++;
 			std::unordered_map<std::string, Expression *>::iterator found = tmpass.find(*curr);
@@ -185,7 +176,7 @@ ValuePtr FileContext::sub_evaluate_function(const std::string &name,
 																						const EvalContext *evalctx,
 																						FileModule *usedmod) const
 {
-	FileContext ctx(this->parent);
+	FileContext ctx{this->parent};
 	ctx.initializeModule(*usedmod);
 	// FIXME: Set document path
 #ifdef DEBUG
@@ -220,7 +211,7 @@ AbstractNode *FileContext::instantiate_module(const ModuleInstantiation &inst, E
 		// usedmod is nullptr if the library wasn't be compiled (error or file-not-found)
 		if (usedmod &&
 				usedmod->scope.modules.find(inst.name()) != usedmod->scope.modules.end()) {
-			FileContext ctx(this->parent);
+			FileContext ctx{this->parent};
 			ctx.initializeModule(*usedmod);
 			// FIXME: Set document path
 #ifdef DEBUG

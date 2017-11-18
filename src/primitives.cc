@@ -36,8 +36,6 @@
 #include <sstream>
 #include <assert.h>
 #include <cmath>
-#include <boost/assign/std/vector.hpp>
-using namespace boost::assign; // bring 'operator+=()' into scope
 
 #define F_MINIMUM 0.01
 
@@ -56,7 +54,7 @@ class PrimitiveModule : public AbstractModule
 public:
 	primitive_type_e type;
 	PrimitiveModule(primitive_type_e type) : type(type) { }
-	virtual AbstractNode *instantiate(const Context *ctx, const ModuleInstantiation *inst, EvalContext *evalctx) const;
+	virtual AbstractNode *instantiate(const Context *ctx, const ModuleInstantiation *inst, EvalContext *evalctx) const override;
 private:
 	Value lookup_radius(const Context &ctx, const std::string &radius_var, const std::string &diameter_var) const;
 };
@@ -66,8 +64,8 @@ class PrimitiveNode : public LeafNode
 public:
 	VISITABLE();
 	PrimitiveNode(const ModuleInstantiation *mi, primitive_type_e type) : LeafNode(mi), type(type) { }
-	virtual std::string toString() const;
-	virtual std::string name() const {
+	virtual std::string toString() const override;
+	virtual std::string name() const override {
 		switch (this->type) {
 		case primitive_type_e::CUBE:
 			return "cube";
@@ -102,7 +100,7 @@ public:
 	primitive_type_e type;
 	int convexity;
 	ValuePtr points, paths, faces;
-	virtual const Geometry *createGeometry() const;
+	virtual const Geometry *createGeometry() const override;
 };
 
 /**
@@ -147,31 +145,40 @@ AbstractNode *PrimitiveModule::instantiate(const Context *ctx, const ModuleInsta
 
 	switch (this->type) {
 	case primitive_type_e::CUBE:
-		args += Assignment("size"), Assignment("center");
+		args.emplace_back("size");
+		args.emplace_back("center");
 		break;
 	case primitive_type_e::SPHERE:
-		args += Assignment("r");
+		args.emplace_back("r");
 		break;
 	case primitive_type_e::CYLINDER:
-		args += Assignment("h"), Assignment("r1"), Assignment("r2"), Assignment("center");
+		args.emplace_back("h");
+ 		args.emplace_back("r1");
+		args.emplace_back("r2");
+ 		args.emplace_back("center");
 		break;
 	case primitive_type_e::POLYHEDRON:
-		args += Assignment("points"), Assignment("faces"), Assignment("convexity");
+		args.emplace_back("points");
+		args.emplace_back("faces");
+		args.emplace_back("convexity");
 		break;
 	case primitive_type_e::SQUARE:
-		args += Assignment("size"), Assignment("center");
+		args.emplace_back("size");
+		args.emplace_back("center");
 		break;
 	case primitive_type_e::CIRCLE:
-		args += Assignment("r");
+		args.emplace_back("r");
 		break;
 	case primitive_type_e::POLYGON:
-		args += Assignment("points"), Assignment("paths"), Assignment("convexity");
+		args.emplace_back("points");
+		args.emplace_back("paths");
+		args.emplace_back("convexity");
 		break;
 	default:
 		assert(false && "PrimitiveModule::instantiate(): Unknown node type");
 	}
 
-	Context c(ctx);
+	Context c{ctx};
 	c.setVariables(args, evalctx);
 
 	node->fn = c.lookup_variable("$fn")->toDouble();

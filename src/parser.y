@@ -209,7 +209,7 @@ assignment:
                     }
                 }
                 if (!found) {
-                  scope_stack.top()->addAssignment(Assignment($1, shared_ptr<Expression>($3), LOC(@$)));
+                  scope_stack.top()->addAssignment({$1, shared_ptr<Expression>($3), LOC(@$)});
                 }
                 free($1);
             }

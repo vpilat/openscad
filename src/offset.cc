@@ -36,8 +36,6 @@
 #include "polyset.h"
 
 #include <sstream>
-#include <boost/assign/std/vector.hpp>
-using namespace boost::assign; // bring 'operator+=()' into scope
 
 #include <boost/filesystem.hpp>
 namespace fs = boost::filesystem;
@@ -53,9 +51,9 @@ AbstractNode *OffsetModule::instantiate(const Context *ctx, const ModuleInstanti
 {
 	auto node = new OffsetNode(inst);
 
-	AssignmentList args{Assignment("r")};
+	AssignmentList args{{"r"}};
 
-	Context c(ctx);
+	Context c{ctx};
 	c.setVariables(args, evalctx);
 	inst->scope.apply(*evalctx);
 

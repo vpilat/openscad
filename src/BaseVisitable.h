@@ -11,8 +11,7 @@ public:
 	virtual ~BaseVisitor() {}
 };
 
-template <class T>
-class Visitor
+template <class T> class Visitor
 {
 public:
 	virtual Response visit(class State &state, const T &) = 0;
@@ -26,7 +25,7 @@ public:
 protected:
 	template <class T>
 	static Response acceptImpl(class State &state, const T &node, BaseVisitor &visitor) {
-		if (Visitor<T> *p = dynamic_cast<Visitor<T> *>(&visitor)) {
+		if (auto *p = dynamic_cast<Visitor<T> *>(&visitor)) {
 			return p->visit(state, node);
 		}
 		// FIXME: If we want to allow for missing nodes in visitors, we need
@@ -37,6 +36,6 @@ protected:
 };
 
 #define VISITABLE() \
-	virtual Response accept(class State &state, BaseVisitor &visitor) const { \
+	virtual Response accept(class State &state, BaseVisitor &visitor) const override { \
 		return acceptImpl(state, *this, visitor); \
 	}

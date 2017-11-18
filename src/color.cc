@@ -30,21 +30,21 @@
 #include "evalcontext.h"
 #include "builtin.h"
 #include "printutils.h"
+#include "stringutils.h"
 #include <sstream>
 #include <assert.h>
 #include <iterator>
 #include <unordered_map>
+
+#include <boost/algorithm/string/join.hpp>
 #include <boost/algorithm/string/case_conv.hpp>
-#include <boost/assign/std/vector.hpp>
-#include <boost/assign/list_of.hpp>
-using namespace boost::assign; // bring 'operator+=()' into scope
 
 class ColorModule : public AbstractModule
 {
 public:
-	ColorModule();
-	virtual ~ColorModule();
-	virtual AbstractNode *instantiate(const Context *ctx, const ModuleInstantiation *inst, EvalContext *evalctx) const;
+	ColorModule() {}
+	virtual ~ColorModule() {}
+	virtual AbstractNode *instantiate(const Context *ctx, const ModuleInstantiation *inst, EvalContext *evalctx) const override;
 
 private:
 	static std::unordered_map<std::string, Color4f> webcolors;
@@ -206,14 +206,6 @@ std::unordered_map<std::string, Color4f> ColorModule::webcolors{
 	{"transparent", {0, 0, 0, 0}}
 };
 
-ColorModule::ColorModule()
-{
-}
-
-ColorModule::~ColorModule()
-{
-}
-
 // Parses hex colors according to: https://drafts.csswg.org/css-color/#typedef-hex-color.
 // If the input is invalid, returns boost::none.
 // Supports the following formats:
@@ -230,9 +222,7 @@ boost::optional<Color4f> parse_hex_color(const std::string &hex) {
 	// validate
 	if (hex[0] != '#') return boost::none;
 	if (!std::all_of(std::begin(hex) + 1, std::end(hex),
-									 [](char c) {
-		return std::isxdigit(static_cast<unsigned char>(c));
-	})) {
+									 [](char c) { return std::isxdigit(static_cast<unsigned char>(c)); })) {
 		return boost::none;
 	}
 
@@ -257,9 +247,9 @@ AbstractNode *ColorModule::instantiate(const Context *ctx, const ModuleInstantia
 {
 	auto node = new ColorNode(inst);
 
-	AssignmentList args{Assignment("c"), Assignment("alpha")};
+	AssignmentList args{{"c"}, {"alpha"}};
 
-	Context c(ctx);
+	Context c{ctx};
 	c.setVariables(args, evalctx);
 	inst->scope.apply(*evalctx);
 
@@ -301,11 +291,8 @@ AbstractNode *ColorModule::instantiate(const Context *ctx, const ModuleInstantia
 
 std::string ColorNode::toString() const
 {
-	std::stringstream stream;
-
-	stream << "color([" << this->color[0] << ", " << this->color[1] << ", " << this->color[2] << ", " << this->color[3] << "])";
-
-	return stream.str();
+	return MakeString() << "color([" << this->color[0] << ", " << this->color[1] << ", "
+											<< this->color[2] << ", " << this->color[3] << "])";
 }
 
 std::string ColorNode::name() const

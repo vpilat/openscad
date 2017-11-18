@@ -11,14 +11,15 @@
 class Context
 {
 public:
-	typedef std::vector<const Context *> Stack;
+	using	Stack = std::vector<const Context *>;
 
 	Context(const Context *parent = nullptr);
 	virtual ~Context();
 
-	const Context *getParent() const { return this->parent; }
 	virtual ValuePtr evaluate_function(const std::string &name, const class EvalContext *evalctx) const;
 	virtual class AbstractNode *instantiate_module(const class ModuleInstantiation &inst, EvalContext *evalctx) const;
+
+	const Context *getParent() const { return this->parent; }
 
 	void setVariables(const AssignmentList &args, const class EvalContext *evalctx = nullptr);
 
@@ -41,7 +42,7 @@ protected:
 	const Context *parent;
 	Stack *ctx_stack;
 
-	typedef std::unordered_map<std::string, ValuePtr> ValueMap;
+	using ValueMap = std::unordered_map<std::string, ValuePtr>;
 	ValueMap constants;
 	ValueMap variables;
 	ValueMap config_variables;

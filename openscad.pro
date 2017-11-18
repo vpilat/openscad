@@ -225,6 +225,7 @@ HEADERS += src/AST.h \
            src/function.h \
            src/module.h \           
            src/UserModule.h \
+           src/stringutils.h
 
 SOURCES += src/AST.cc \
            src/ModuleInstantiation.cc \

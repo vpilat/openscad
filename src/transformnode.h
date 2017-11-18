@@ -8,8 +8,8 @@ class TransformNode : public AbstractNode
 public:
 	VISITABLE();
 	TransformNode(const ModuleInstantiation *mi);
-	virtual std::string toString() const;
-	virtual std::string name() const;
+	virtual std::string toString() const override;
+	virtual std::string name() const override;
 
 	Transform3d matrix;
 };

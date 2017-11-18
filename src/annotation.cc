@@ -28,6 +28,7 @@
 #include "annotation.h"
 #include "expression.h"
 #include "context.h"
+#include "stringutils.h"
 
 Annotation::Annotation(const std::string &name, shared_ptr<class Expression> expr)
 	: name(name), expr(expr)
@@ -50,7 +51,5 @@ const std::string &Annotation::getName() const
 
 std::string Annotation::dump() const
 {
-	std::stringstream dump;
-	dump << "//" << name << "(" << *this->expr << ")" << std::endl;
-	return dump.str();
+	return MakeString() << "//" << name << "(" << *this->expr << ")\n";
 }

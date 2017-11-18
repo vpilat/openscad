@@ -20,8 +20,8 @@ public:
 		convexity = 1;
 	}
 	virtual ~CgaladvNode() { }
-	virtual std::string toString() const;
-	virtual std::string name() const;
+	virtual std::string toString() const override;
+	virtual std::string name() const override;
 
 	ValuePtr path;
 	std::string subdiv_type;

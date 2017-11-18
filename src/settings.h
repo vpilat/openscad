@@ -62,15 +62,15 @@ public:
 	void set(SettingsEntry &entry, const Value &val);
 
 private:
-	Settings();
-	virtual ~Settings();
+	Settings() {}
+	virtual ~Settings() {}
 };
 
 class SettingsVisitor
 {
 public:
-	SettingsVisitor();
-	virtual ~SettingsVisitor();
+	SettingsVisitor() {}
+	virtual ~SettingsVisitor() {}
 
 	virtual void handle(SettingsEntry &entry) const = 0;
 };

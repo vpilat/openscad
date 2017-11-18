@@ -32,8 +32,6 @@
 #include "polyset.h"
 #include <sstream>
 #include <assert.h>
-#include <boost/assign/std/vector.hpp>
-using namespace boost::assign; // bring 'operator+=()' into scope
 
 class CgaladvModule : public AbstractModule
 {
@@ -48,16 +46,28 @@ AbstractNode *CgaladvModule::instantiate(const Context *ctx, const ModuleInstant
 	auto node = new CgaladvNode(inst, type);
 
 	AssignmentList args;
-
-	if (type == CgaladvType::MINKOWSKI) args += Assignment("convexity");
-
-	if (type == CgaladvType::GLIDE) args += Assignment("path"), Assignment("convexity");
-
-	if (type == CgaladvType::SUBDIV) args += Assignment("type"), Assignment("level"), Assignment("convexity");
-
-	if (type == CgaladvType::RESIZE) args += Assignment("newsize"), Assignment("auto");
-
-	Context c(ctx);
+	switch (type) {
+	case CgaladvType::MINKOWSKI:
+		args.emplace_back("convexity");
+		break;
+	case CgaladvType::GLIDE:
+		args.emplace_back("path");
+		args.emplace_back("convexity");
+		break;
+	case CgaladvType::SUBDIV:
+		args.emplace_back("type");
+ 		args.emplace_back("level");
+		args.emplace_back("convexity");
+		break;
+	case CgaladvType::RESIZE:
+		args.emplace_back("newsize");
+		args.emplace_back("auto");
+		break;
+	default:
+		break;
+	}
+	
+	Context c{ctx};
 	c.setVariables(args, evalctx);
 	inst->scope.apply(*evalctx);
 

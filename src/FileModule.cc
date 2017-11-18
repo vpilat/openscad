@@ -39,16 +39,12 @@ namespace fs = boost::filesystem;
 #include "FontCache.h"
 #include <sys/stat.h>
 
-FileModule::~FileModule()
-{
-}
-
 std::string FileModule::dump(const std::string &indent, const std::string & /*name*/) const
 {
 	return scope.dump(indent);
 }
 
-void FileModule::registerUse(const std::string path)
+void FileModule::registerUse(const std::string &path)
 {
 	auto extraw = fs::path(path).extension().generic_string();
 	auto ext = boost::algorithm::to_lower_copy(extraw);
@@ -148,7 +144,6 @@ time_t FileModule::handleDependencies()
 	}
 
 	// Relative filenames which were located are reinserted as absolute filenames
-	typedef std::pair<std::string, std::string> stringpair;
 	for (const auto &files : updates) {
 		this->usedlibs.erase(files.first);
 		this->usedlibs.insert(files.second);
@@ -162,7 +157,7 @@ AbstractNode *FileModule::instantiate(const Context *ctx, const ModuleInstantiat
 {
 	assert(evalctx == nullptr);
 
-	FileContext context(ctx);
+	FileContext context{ctx};
 	return this->instantiateWithFileContext(&context, inst, evalctx);
 }
 

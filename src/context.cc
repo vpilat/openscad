@@ -35,12 +35,15 @@
 #include <boost/filesystem.hpp>
 namespace fs = boost::filesystem;
 
+namespace {
 // $children is not a config_variable. config_variables have dynamic scope,
 // meaning they are passed down the call chain implicitly.
 // $children is simply misnamed and shouldn't have included the '$'.
-static bool is_config_variable(const std::string &name)
+bool is_config_variable(const std::string &name)
 {
 	return name[0] == '$' && name != "$children";
+}
+
 }
 
 /*!

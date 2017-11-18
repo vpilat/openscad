@@ -38,8 +38,6 @@
 
 #include <cmath>
 #include <sstream>
-#include <boost/assign/std/vector.hpp>
-using namespace boost::assign; // bring 'operator+=()' into scope
 
 #include <boost/filesystem.hpp>
 namespace fs = boost::filesystem;
@@ -48,14 +46,14 @@ class LinearExtrudeModule : public AbstractModule
 {
 public:
 	LinearExtrudeModule() { }
-	virtual AbstractNode *instantiate(const Context *ctx, const ModuleInstantiation *inst, EvalContext *evalctx) const;
+	virtual AbstractNode *instantiate(const Context *ctx, const ModuleInstantiation *inst, EvalContext *evalctx) const override;
 };
 
 AbstractNode *LinearExtrudeModule::instantiate(const Context *ctx, const ModuleInstantiation *inst, EvalContext *evalctx) const
 {
 	auto node = new LinearExtrudeNode(inst);
 
-	AssignmentList args{Assignment("file"), Assignment("layer"), Assignment("height"), Assignment("origin"), Assignment("scale"), Assignment("center"), Assignment("twist"), Assignment("slices")};
+	AssignmentList args{{"file"}, {"layer"}, {"height"}, {"origin"}, {"scale"}, {"center"}, {"twist"}, {"slices"}};
 
 	Context c(ctx);
 	c.setVariables(args, evalctx);

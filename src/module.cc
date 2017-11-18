@@ -27,6 +27,7 @@
 #include "module.h"
 #include "context.h"
 #include "value.h"
+#include "stringutils.h"
 #include <sstream>
 
 AbstractModule::~AbstractModule()
@@ -47,7 +48,5 @@ std::string AbstractModule::lookup_string_variable_with_default(Context &c, std:
 
 std::string AbstractModule::dump(const std::string &indent, const std::string &name) const
 {
-	std::stringstream dump;
-	dump << indent << "abstract module " << name << "();\n";
-	return dump.str();
+	return MakeString() << indent << "abstract module " << name << "();\n";
 }

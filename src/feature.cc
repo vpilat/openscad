@@ -6,6 +6,7 @@
 
 #include "feature.h"
 #include "printutils.h"
+#include "stringutils.h"
 
 /**
  * Feature registration map/list for later lookup. This must be initialized
@@ -102,8 +103,8 @@ ExperimentalFeatureException::~ExperimentalFeatureException() throw()
 void ExperimentalFeatureException::check(const Feature &feature)
 {
 	if (!feature.is_enabled()) {
-		std::stringstream out;
-		out << "ERROR: Experimental feature not enabled: '" << feature.get_name() << "'. Please check preferences.";
-		throw ExperimentalFeatureException(out.str());
+		throw ExperimentalFeatureException{MakeString()
+																			 << "ERROR: Experimental feature not enabled: '"
+																			 << feature.get_name() << "'. Please check preferences."};
 	}
 }

@@ -33,6 +33,8 @@
 #include <boost/variant/apply_visitor.hpp>
 #include <boost/variant/static_visitor.hpp>
 #include <boost/format.hpp>
+#include <boost/algorithm/string/join.hpp>
+#include <boost/range/adaptor/transformed.hpp>
 #include "boost-utils.h"
 #include <boost/filesystem.hpp>
 namespace fs = boost::filesystem;
@@ -62,7 +64,7 @@ std::ostream &operator<<(std::ostream &stream, const Filename &filename)
 {
 	fs::path fnpath{static_cast<std::string>(filename)}; // gcc-4.6
 	auto fpath = boostfs_uncomplete(fnpath, fs::current_path());
-	stream << QuotedString(fpath.generic_string());
+	stream << QuotedString{fpath.generic_string()};
 	return stream;
 }
 
@@ -245,14 +247,11 @@ public:
 	}
 
 	std::string operator()(const Value::VectorType &v) const {
-		std::stringstream stream;
-		stream << '[';
-		for (size_t i = 0; i < v.size(); i++) {
-			if (i > 0) stream << ", ";
-			stream << v[i]->toEchoString();
-		}
-		stream << ']';
-		return stream.str();
+    return "[" +
+			boost::algorithm::join(
+				boost::adaptors::transform(v, [](const ValuePtr &val) {return val->toEchoString();}),
+				", ") +
+			"]";
 	}
 
 	std::string operator()(const RangeType &v) const {
@@ -523,7 +522,7 @@ Value Value::operator-(const Value &v) const
 	return boost::apply_visitor(minus_visitor(), this->value, v.value);
 }
 
-Value Value::multvecnum(const Value &vecval, const Value &numval)
+Value Value::multVecNum(const Value &vecval, const Value &numval)
 {
 // Vector * Number
 	VectorType dstv;
@@ -533,7 +532,7 @@ Value Value::multvecnum(const Value &vecval, const Value &numval)
 	return {dstv};
 }
 
-Value Value::multmatvec(const VectorType &matrixvec, const VectorType &vectorvec)
+Value Value::multMatVec(const VectorType &matrixvec, const VectorType &vectorvec)
 {
 // Matrix * Vector
 	VectorType dstv;
@@ -554,7 +553,7 @@ Value Value::multmatvec(const VectorType &matrixvec, const VectorType &vectorvec
 	return {dstv};
 }
 
-Value Value::multvecmat(const VectorType &vectorvec, const VectorType &matrixvec)
+Value Value::multVecMat(const VectorType &vectorvec, const VectorType &matrixvec)
 {
 	assert(vectorvec.size() == matrixvec.size());
 // Vector * Matrix
@@ -580,10 +579,10 @@ Value Value::operator*(const Value &v) const
 		return {this->toDouble() * v.toDouble()};
 	}
 	else if (this->type() == ValueType::VECTOR && v.type() == ValueType::NUMBER) {
-		return multvecnum(*this, v);
+		return multVecNum(*this, v);
 	}
 	else if (this->type() == ValueType::NUMBER && v.type() == ValueType::VECTOR) {
-		return multvecnum(v, *this);
+		return multVecNum(v, *this);
 	}
 	else if (this->type() == ValueType::VECTOR && v.type() == ValueType::VECTOR) {
 		const auto &vec1 = this->toVector();
@@ -604,11 +603,11 @@ Value Value::operator*(const Value &v) const
 		}
 		else if (vec1[0]->type() == ValueType::VECTOR && vec2[0]->type() == ValueType::NUMBER &&
 						 vec1[0]->toVector().size() == vec2.size()) {
-			return multmatvec(vec1, vec2);
+			return multMatVec(vec1, vec2);
 		}
 		else if (vec1[0]->type() == ValueType::NUMBER && vec2[0]->type() == ValueType::VECTOR &&
 						 vec1.size() == vec2.size()) {
-			return multvecmat(vec1, vec2);
+			return multVecMat(vec1, vec2);
 		}
 		else if (vec1[0]->type() == ValueType::VECTOR && vec2[0]->type() == ValueType::VECTOR &&
 						 vec1[0]->toVector().size() == vec2.size()) {
@@ -617,7 +616,7 @@ Value Value::operator*(const Value &v) const
 			for (const auto &srcrow : vec1) {
 				const auto &srcrowvec = srcrow->toVector();
 				if (srcrowvec.size() != vec2.size()) return Value::undefined;
-				dstv.push_back(ValuePtr(multvecmat(srcrowvec, vec2)));
+				dstv.push_back(ValuePtr(multVecMat(srcrowvec, vec2)));
 			}
 			return {dstv};
 		}

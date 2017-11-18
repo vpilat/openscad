@@ -13,8 +13,8 @@ public:
 		origin_x = origin_y = scale = 0;
 		angle = 360;
 	}
-	virtual std::string toString() const;
-	virtual std::string name() const { return "rotate_extrude"; }
+	virtual std::string toString() const override;
+	virtual std::string name() const override { return "rotate_extrude"; }
 
 	int convexity;
 	double fn, fs, fa;

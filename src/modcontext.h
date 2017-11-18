@@ -12,15 +12,19 @@
 class ModuleContext : public Context
 {
 public:
-	ModuleContext(const Context *parent = nullptr, const EvalContext *evalctx = nullptr);
-	virtual ~ModuleContext();
+	ModuleContext(const Context *parent = nullptr, const EvalContext *evalctx = nullptr)
+		: Context(parent), functions_p(nullptr), modules_p(nullptr), evalctx(evalctx)
+	{
+	}
+	virtual ~ModuleContext() {}
+
+	virtual ValuePtr evaluate_function(const std::string &name,
+																		 const EvalContext *evalctx) const override;
+	virtual AbstractNode *instantiate_module(const ModuleInstantiation &inst,
+																					 EvalContext *evalctx) const override;
 
 	void initializeModule(const class UserModule &m);
 	void registerBuiltin();
-	virtual ValuePtr evaluate_function(const std::string &name,
-																		 const EvalContext *evalctx) const;
-	virtual AbstractNode *instantiate_module(const ModuleInstantiation &inst,
-																					 EvalContext *evalctx) const;
 
 	const AbstractModule *findLocalModule(const std::string &name) const;
 	const AbstractFunction *findLocalFunction(const std::string &name) const;

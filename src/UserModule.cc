@@ -48,19 +48,19 @@ AbstractNode *UserModule::instantiate(const Context *ctx, const ModuleInstantiat
 	// passed to this instance, so we can populate the context
 	inst->scope.apply(*evalctx);
 
-	ModuleContext c(ctx, evalctx);
+	ModuleContext c{ctx, evalctx};
 	// set $children first since we might have variables depending on it
-	c.set_variable("$children", ValuePtr(double(inst->scope.children.size())));
+	c.set_variable("$children", ValuePtr{double(inst->scope.children.size())});
 	module_stack.push_back(inst->name());
-	c.set_variable("$parent_modules", ValuePtr(double(module_stack.size())));
+	c.set_variable("$parent_modules", ValuePtr{double(module_stack.size())});
 	c.initializeModule(*this);
 	// FIXME: Set document path to the path of the module
 #if 0 && DEBUG
 	c.dump(this, inst);
 #endif
 
-	AbstractNode *node = new GroupNode(inst);
-	std::vector<AbstractNode *> instantiatednodes = this->scope.instantiateChildren(&c);
+	auto node = new GroupNode(inst);
+	const auto instantiatednodes = this->scope.instantiateChildren(&c);
 	node->children.insert(node->children.end(), instantiatednodes.begin(), instantiatednodes.end());
 	module_stack.pop_back();
 
@@ -73,8 +73,8 @@ std::string UserModule::dump(const std::string &indent, const std::string &name)
 	std::string tab;
 	if (!name.empty()) {
 		dump << indent << "module " << name << "(";
-		for (size_t i = 0; i < this->definition_arguments.size(); i++) {
-			const Assignment &arg = this->definition_arguments[i];
+		for (auto i = 0u; i < this->definition_arguments.size(); i++) {
+			const auto &arg = this->definition_arguments[i];
 			if (i > 0) dump << ", ";
 			dump << arg.name;
 			if (arg.expr) dump << " = " << *arg.expr;

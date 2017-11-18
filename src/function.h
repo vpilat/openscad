@@ -15,7 +15,7 @@ private:
 public:
 	AbstractFunction(const Feature &feature) : feature(&feature) {}
 	AbstractFunction() : feature(nullptr) {}
-	virtual ~AbstractFunction();
+	virtual ~AbstractFunction() {}
 	virtual bool is_experimental() const { return feature != nullptr; }
 	virtual bool is_enabled() const { return (feature == nullptr) || feature->is_enabled(); }
 	virtual ValuePtr evaluate(const class Context *ctx, const class EvalContext *evalctx) const = 0;
@@ -25,15 +25,15 @@ public:
 class BuiltinFunction : public AbstractFunction
 {
 public:
-	typedef ValuePtr (*eval_func_t)(const Context *ctx, const EvalContext *evalctx);
+	using eval_func_t = std::function<ValuePtr(const Context *ctx, const EvalContext *evalctx)>;
 	eval_func_t eval_func;
 
 	BuiltinFunction(eval_func_t f) : eval_func(f) { }
 	BuiltinFunction(eval_func_t f, const Feature &feature) : AbstractFunction(feature), eval_func(f) { }
-	virtual ~BuiltinFunction();
+	virtual ~BuiltinFunction() {}
 
-	virtual ValuePtr evaluate(const Context *ctx, const EvalContext *evalctx) const;
-	virtual std::string dump(const std::string &indent, const std::string &name) const;
+	virtual ValuePtr evaluate(const Context *ctx, const EvalContext *evalctx) const override;
+	virtual std::string dump(const std::string &indent, const std::string &name) const override;
 };
 
 class UserFunction : public AbstractFunction, public ASTNode
@@ -44,11 +44,15 @@ public:
 
 	shared_ptr<Expression> expr;
 
-	UserFunction(const char *name, AssignmentList &definition_arguments, shared_ptr<Expression> expr, const Location &loc);
-	virtual ~UserFunction();
+	UserFunction(const char *name, AssignmentList &definition_arguments, shared_ptr<Expression> expr,
+							 Location loc)
+		: ASTNode(loc), name(name), definition_arguments(definition_arguments), expr(expr)
+	{
+	}
+	virtual ~UserFunction() {}
 
-	virtual ValuePtr evaluate(const Context *ctx, const EvalContext *evalctx) const;
-	virtual std::string dump(const std::string &indent, const std::string &name) const;
+	virtual ValuePtr evaluate(const Context *ctx, const EvalContext *evalctx) const override;
+	virtual std::string dump(const std::string &indent, const std::string &name) const override;
 
-	static UserFunction *create(const char *name, AssignmentList &definition_arguments, shared_ptr<Expression> expr, const Location &loc);
+	static UserFunction *create(const char *name, AssignmentList &definition_arguments, shared_ptr<Expression> expr, Location loc);
 };

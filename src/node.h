@@ -61,8 +61,8 @@ public:
 	VISITABLE();
 	AbstractIntersectionNode(const ModuleInstantiation *mi) : AbstractNode(mi) { }
 	virtual ~AbstractIntersectionNode() { }
-	virtual std::string toString() const;
-	virtual std::string name() const;
+	virtual std::string toString() const override;
+	virtual std::string name() const override;
 };
 
 class AbstractPolyNode : public AbstractNode
@@ -88,7 +88,7 @@ public:
 	VISITABLE();
 	GroupNode(const class ModuleInstantiation *mi) : AbstractNode(mi) { }
 	virtual ~GroupNode() { }
-	virtual std::string name() const;
+	virtual std::string name() const override;
 };
 
 /*!
@@ -101,7 +101,7 @@ public:
 
 	RootNode(const class ModuleInstantiation *mi) : GroupNode(mi) { }
 	virtual ~RootNode() { }
-	virtual std::string name() const;
+	virtual std::string name() const override;
 };
 
 class LeafNode : public AbstractPolyNode

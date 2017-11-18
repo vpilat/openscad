@@ -1,9 +1,6 @@
 #include "settings.h"
 #include "printutils.h"
 
-#include <boost/assign/std/vector.hpp>
-using namespace boost::assign; // bring 'operator+=()' into scope
-
 namespace Settings {
 
 static std::list<SettingsEntry *> entries;
@@ -43,28 +40,24 @@ bool SettingsEntry::is_default() const
 	return _value == _default;
 }
 
-static Value value(std::string s1, std::string s2) {
-	Value::VectorType v;
-	v += ValuePtr(s1), ValuePtr(s2);
-	return v;
+static Value value(std::string s1, std::string s2)
+{
+	return Value::VectorType{ValuePtr{s1}, ValuePtr{s2}};
 }
 
-static Value values(std::string s1, std::string s1disp, std::string s2, std::string s2disp) {
-	Value::VectorType v;
-	v += ValuePtr(value(s1, s1disp)), ValuePtr(value(s2, s2disp));
-	return v;
+static Value values(std::string s1, std::string s1disp, std::string s2, std::string s2disp)
+{
+	return Value::VectorType{ValuePtr{value(s1, s1disp)}, ValuePtr{value(s2, s2disp)}};
 }
 
-static Value values(std::string s1, std::string s1disp, std::string s2, std::string s2disp, std::string s3, std::string s3disp) {
-	Value::VectorType v;
-	v += ValuePtr(value(s1, s1disp)), ValuePtr(value(s2, s2disp)), ValuePtr(value(s3, s3disp));
-	return v;
+static Value values(std::string s1, std::string s1disp, std::string s2, std::string s2disp, std::string s3, std::string s3disp)
+{
+	return Value::VectorType{ValuePtr{value(s1, s1disp)}, ValuePtr{value(s2, s2disp)}, ValuePtr{value(s3, s3disp)}};
 }
 
-static Value values(std::string s1, std::string s1disp, std::string s2, std::string s2disp, std::string s3, std::string s3disp, std::string s4, std::string s4disp) {
-	Value::VectorType v;
-	v += ValuePtr(value(s1, s1disp)), ValuePtr(value(s2, s2disp)), ValuePtr(value(s3, s3disp)), ValuePtr(value(s4, s4disp));
-	return v;
+static Value values(std::string s1, std::string s1disp, std::string s2, std::string s2disp, std::string s3, std::string s3disp, std::string s4, std::string s4disp)
+{
+	return Value::VectorType{ValuePtr{value(s1, s1disp)}, ValuePtr{value(s2, s2disp)}, ValuePtr{value(s3, s3disp)}, ValuePtr{value(s4, s4disp)}};
 }
 
 Settings *Settings::inst(bool erase)
@@ -77,14 +70,6 @@ Settings *Settings::inst(bool erase)
 	}
 
 	return instance;
-}
-
-Settings::Settings()
-{
-}
-
-Settings::~Settings()
-{
 }
 
 void Settings::visit(SettingsVisitor &visitor)
@@ -107,14 +92,6 @@ const Value &Settings::get(const SettingsEntry &entry)
 void Settings::set(SettingsEntry &entry, const Value &val)
 {
 	entry._value = val;
-}
-
-SettingsVisitor::SettingsVisitor()
-{
-}
-
-SettingsVisitor::~SettingsVisitor()
-{
 }
 
 /*

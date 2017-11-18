@@ -138,7 +138,7 @@ private:
 class Value
 {
 public:
-	typedef std::vector<ValuePtr> VectorType;
+	using VectorType = std::vector<ValuePtr>;
 
 	enum class ValueType {
 		UNDEFINED,
@@ -201,13 +201,11 @@ public:
 		return stream;
 	}
 
-	typedef boost::variant<boost::blank, bool, double, std::string, VectorType, RangeType> Variant;
-
 private:
-	static Value multvecnum(const Value &vecval, const Value &numval);
-	static Value multmatvec(const VectorType &matrixvec, const VectorType &vectorvec);
-	static Value multvecmat(const VectorType &vectorvec, const VectorType &matrixvec);
+	static Value multVecNum(const Value &vecval, const Value &numval);
+	static Value multMatVec(const VectorType &matrixvec, const VectorType &vectorvec);
+	static Value multVecMat(const VectorType &vectorvec, const VectorType &matrixvec);
 
-	Variant value;
+	boost::variant<boost::blank, bool, double, std::string, VectorType, RangeType> value;
 };
 

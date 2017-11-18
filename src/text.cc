@@ -33,24 +33,22 @@
 #include "textnode.h"
 #include "FreetypeRenderer.h"
 #include "Polygon2d.h"
-
-#include <boost/assign/std/vector.hpp>
-using namespace boost::assign; // bring 'operator+=()' into scope
+#include "stringutils.h"
 
 class TextModule : public AbstractModule
 {
 public:
-	TextModule() : AbstractModule() { }
-	virtual AbstractNode *instantiate(const Context *ctx, const ModuleInstantiation *inst, EvalContext *evalctx) const;
+	TextModule() : AbstractModule() {}
+	virtual AbstractNode *instantiate(const Context *ctx, const ModuleInstantiation *inst, EvalContext *evalctx) const override;
 };
 
 AbstractNode *TextModule::instantiate(const Context *ctx, const ModuleInstantiation *inst, EvalContext *evalctx) const
 {
 	auto node = new TextNode(inst);
 
-	AssignmentList args{Assignment("text"), Assignment("size"), Assignment("font")};
+	AssignmentList args{{"text"}, {"size"}, {"font"}};
 
-	Context c(ctx);
+	Context c{ctx};
 	c.setVariables(args, evalctx);
 
 	auto fn = c.lookup_variable("$fn")->toDouble();
@@ -88,8 +86,7 @@ AbstractNode *TextModule::instantiate(const Context *ctx, const ModuleInstantiat
 
 std::vector<const Geometry *> TextNode::createGeometryList() const
 {
-	FreetypeRenderer renderer;
-	return renderer.render(this->get_params());
+	return FreetypeRenderer{}.render(this->get_params());
 }
 
 FreetypeRenderer::Params TextNode::get_params() const
@@ -99,9 +96,7 @@ FreetypeRenderer::Params TextNode::get_params() const
 
 std::string TextNode::toString() const
 {
-	std::stringstream stream;
-	stream << name() << "(" << this->params << ")";
-	return stream.str();
+	return MakeString() << name() << "(" << this->params << ")";
 }
 
 void register_builtin_text()

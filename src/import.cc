@@ -39,16 +39,14 @@
 #include "dxfdata.h"
 #include "printutils.h"
 #include "fileutils.h"
+#include "stringutils.h"
 #include "feature.h"
 #include "handle_dep.h"
 
 #include <sys/types.h>
-#include <sstream>
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
 namespace fs = boost::filesystem;
-#include <boost/assign/std/vector.hpp>
-using namespace boost::assign; // bring 'operator+=()' into scope
 
 #include <boost/detail/endian.hpp>
 #include <cstdint>
@@ -65,11 +63,8 @@ public:
 
 AbstractNode *ImportModule::instantiate(const Context *ctx, const ModuleInstantiation *inst, EvalContext *evalctx) const
 {
-	AssignmentList args{
-		Assignment("file"), Assignment("layer"), Assignment("convexity"),
-		Assignment("origin"), Assignment("scale"), Assignment("filename"),
-		Assignment("layername")
-	};
+	AssignmentList args{{"file"},  {"layer"},    {"convexity"}, {"origin"},
+											{"scale"}, {"filename"}, {"layername"}};
 
 	// FIXME: This is broken. Tag as deprecated and fix
 	// Map old argnames to new argnames for compatibility
@@ -194,21 +189,15 @@ const Geometry *ImportNode::createGeometry() const
 
 std::string ImportNode::toString() const
 {
-	std::stringstream stream;
 	fs::path path((std::string)this->filename);
 
-	stream << this->name();
-	stream << "(file = " << this->filename << ", "
-		"layer = " << QuotedString(this->layername) << ", "
-		"origin = [" << std::dec << this->origin_x << ", " << this->origin_y << "], "
-		"scale = " << this->scale << ", "
-		"convexity = " << this->convexity << ", "
-		"$fn = " << this->fn << ", $fa = " << this->fa << ", $fs = " << this->fs
-				 << ", " "timestamp = " << (fs::exists(path) ? fs::last_write_time(path) : 0)
-				 << ")";
-
-
-	return stream.str();
+	return MakeString() << this->name() << "(file = " << this->filename
+											<< ", layer = " << QuotedString(this->layername) << ", origin = [" << std::dec
+											<< this->origin_x << ", " << this->origin_y << "], scale = " << this->scale
+											<< ", convexity = " << this->convexity << ", $fn = " << this->fn
+											<< ", $fa = " << this->fa << ", $fs = " << this->fs
+											<< ", timestamp = " << (fs::exists(path) ? fs::last_write_time(path) : 0)
+											<< ")";
 }
 
 std::string ImportNode::name() const

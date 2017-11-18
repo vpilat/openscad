@@ -32,6 +32,7 @@
 #include "builtin.h"
 #include "printutils.h"
 #include "fileutils.h"
+#include "stringutils.h"
 #include "handle_dep.h"
 #include "lodepng.h"
 
@@ -44,8 +45,6 @@
 #include <boost/tokenizer.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
-#include <boost/assign/std/vector.hpp>
-using namespace boost::assign; // bring 'operator+=()' into scope
 
 #include <boost/filesystem.hpp>
 namespace fs = boost::filesystem;
@@ -54,25 +53,25 @@ class SurfaceModule : public AbstractModule
 {
 public:
 	SurfaceModule() { }
-	virtual AbstractNode *instantiate(const Context *ctx, const ModuleInstantiation *inst, EvalContext *evalctx) const;
+	virtual AbstractNode *instantiate(const Context *ctx, const ModuleInstantiation *inst, EvalContext *evalctx) const override;
 };
 
-typedef std::unordered_map<std::pair<int, int>, double, boost::hash<std::pair<int, int>>> img_data_t;
+using img_data_t = std::unordered_map<std::pair<int, int>, double, boost::hash<std::pair<int, int>>>;
 
 class SurfaceNode : public LeafNode
 {
 public:
 	VISITABLE();
 	SurfaceNode(const ModuleInstantiation *mi) : LeafNode(mi) { }
-	virtual std::string toString() const;
-	virtual std::string name() const { return "surface"; }
+	virtual std::string toString() const override;
+	virtual std::string name() const override { return "surface"; }
 
 	Filename filename;
 	bool center;
 	bool invert;
 	int convexity;
 
-	virtual const Geometry *createGeometry() const;
+	virtual const Geometry *createGeometry() const override;
 private:
 	void convert_image(img_data_t &data, std::vector<uint8_t> &img, unsigned int width, unsigned int height) const;
 	bool is_png(std::vector<uint8_t> &img) const;
@@ -87,9 +86,9 @@ AbstractNode *SurfaceModule::instantiate(const Context *ctx, const ModuleInstant
 	node->invert = false;
 	node->convexity = 1;
 
-	AssignmentList args{Assignment("file"), Assignment("center"), Assignment("convexity")};
+	AssignmentList args{{"file"}, {"center"}, {"convexity"}};
 
-	Context c(ctx);
+	Context c{ctx};
 	c.setVariables(args, evalctx);
 
 	auto fileval = c.lookup_variable("file");
@@ -117,12 +116,12 @@ AbstractNode *SurfaceModule::instantiate(const Context *ctx, const ModuleInstant
 
 void SurfaceNode::convert_image(img_data_t &data, std::vector<uint8_t> &img, unsigned int width, unsigned int height) const
 {
-	for (unsigned int y = 0; y < height; y++) {
-		for (unsigned int x = 0; x < width; x++) {
-			long idx = 4 * (y * width + x);
-			double pixel = 0.2126 * img[idx] + 0.7152 * img[idx + 1] + 0.0722 * img[idx + 2];
-			double z = 100.0 / 255 * (invert ? 1 - pixel : pixel);
-			data[std::make_pair(height - 1 - y, x)] = z;
+	for (auto y = 0u; y < height; y++) {
+		for (auto x = 0u; x < width; x++) {
+			auto idx = 4 * (y * width + x);
+			auto pixel = 0.2126 * img[idx] + 0.7152 * img[idx + 1] + 0.0722 * img[idx + 2];
+			auto z = 100.0 / 255 * (invert ? 1 - pixel : pixel);
+			data[{height - 1 - y, x}] = z;
 		}
 	}
 }
@@ -163,7 +162,7 @@ img_data_t SurfaceNode::read_png_or_dat(std::string filename) const
 img_data_t SurfaceNode::read_dat(std::string filename) const
 {
 	img_data_t data;
-	std::ifstream stream(filename.c_str());
+	std::ifstream stream{filename.c_str()};
 
 	if (!stream.good()) {
 		PRINTB("WARNING: Can't open DAT file '%s'.", filename);
@@ -173,8 +172,8 @@ img_data_t SurfaceNode::read_dat(std::string filename) const
 	int lines = 0, columns = 0;
 	double min_val = 0;
 
-	typedef boost::tokenizer<boost::char_separator<char>> tokenizer;
-	boost::char_separator<char> sep(" \t");
+	using tokenizer = boost::tokenizer<boost::char_separator<char>>;
+	boost::char_separator<char> sep{" \t"};
 
 	while (!stream.eof()) {
 		std::string line;
@@ -185,7 +184,7 @@ img_data_t SurfaceNode::read_dat(std::string filename) const
 		if (line.size() == 0 && stream.eof()) break;
 
 		int col = 0;
-		tokenizer tokens(line, sep);
+		tokenizer tokens{line, sep};
 		try {
 			for (const auto &token : tokens) {
 				auto v = boost::lexical_cast<double>(token);
@@ -210,7 +209,7 @@ const Geometry *SurfaceNode::createGeometry() const
 {
 	auto data = read_png_or_dat(filename);
 
-	auto p = new PolySet(3);
+	auto p = new PolySet{3};
 	p->setConvexity(convexity);
 
 	int lines = 0;
@@ -284,14 +283,10 @@ const Geometry *SurfaceNode::createGeometry() const
 
 	if (columns > 1 && lines > 1) {
 		p->append_poly();
-		for (int i = 0; i < columns - 1; i++)
-			p->insert_vertex(ox + i, oy + 0, min_val);
-		for (int i = 0; i < lines - 1; i++)
-			p->insert_vertex(ox + columns - 1, oy + i, min_val);
-		for (int i = columns - 1; i > 0; i--)
-			p->insert_vertex(ox + i, oy + lines - 1, min_val);
-		for (int i = lines - 1; i > 0; i--)
-			p->insert_vertex(ox + 0, oy + i, min_val);
+		for (int i = 0; i < columns - 1; i++) p->insert_vertex(ox + i, oy + 0, min_val);
+		for (int i = 0; i < lines - 1; i++) p->insert_vertex(ox + columns - 1, oy + i, min_val);
+		for (int i = columns - 1; i > 0; i--) p->insert_vertex(ox + i, oy + lines - 1, min_val);
+		for (int i = lines - 1; i > 0; i--) p->insert_vertex(ox + 0, oy + i, min_val);
 	}
 
 	return p;
@@ -299,16 +294,13 @@ const Geometry *SurfaceNode::createGeometry() const
 
 std::string SurfaceNode::toString() const
 {
-	std::stringstream stream;
 	fs::path path{static_cast<std::string>(this->filename)}; // gcc-4.6
 
-	stream << this->name() << "(file = " << this->filename
-				 << ", center = " << (this->center ? "true" : "false")
-				 << ", invert = " << (this->invert ? "true" : "false")
-				 << ", " "timestamp = " << (fs::exists(path) ? fs::last_write_time(path) : 0)
-				 << ")";
-
-	return stream.str();
+	return MakeString() << this->name() << "(file = " << this->filename
+											<< ", center = " << (this->center ? "true" : "false")
+											<< ", invert = " << (this->invert ? "true" : "false")
+											<< ", timestamp = " << (fs::exists(path) ? fs::last_write_time(path) : 0)
+											<< ")";
 }
 
 void register_builtin_surface()

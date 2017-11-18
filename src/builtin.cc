@@ -1,5 +1,6 @@
 #include "builtin.h"
 #include "function.h"
+#include "memory.h"
 #include "module.h"
 #include "expression.h"
 
@@ -16,9 +17,7 @@ Builtins *Builtins::instance(bool erase)
 void Builtins::init(const char *name, class AbstractModule *module)
 {
 #ifndef ENABLE_EXPERIMENTAL
-	if (module->is_experimental()) {
-		return;
-	}
+	if (module->is_experimental()) return;
 #endif
 	Builtins::instance()->globalscope.modules[name] = module;
 }
@@ -26,9 +25,7 @@ void Builtins::init(const char *name, class AbstractModule *module)
 void Builtins::init(const char *name, class AbstractFunction *function)
 {
 #ifndef ENABLE_EXPERIMENTAL
-	if (function->is_experimental()) {
-		return;
-	}
+	if (function->is_experimental()) return;
 #endif
 	Builtins::instance()->globalscope.functions[name] = function;
 }
@@ -94,20 +91,16 @@ std::string Builtins::isDeprecated(const std::string &name)
 
 Builtins::Builtins()
 {
-	this->globalscope.assignments.push_back(Assignment("$fn", shared_ptr<Expression>(new Literal(ValuePtr(0.0)))));
-	this->globalscope.assignments.push_back(Assignment("$fs", shared_ptr<Expression>(new Literal(ValuePtr(2.0)))));
-	this->globalscope.assignments.push_back(Assignment("$fa", shared_ptr<Expression>(new Literal(ValuePtr(12.0)))));
-	this->globalscope.assignments.push_back(Assignment("$t", shared_ptr<Expression>(new Literal(ValuePtr(0.0)))));
-	this->globalscope.assignments.push_back(Assignment("$preview", shared_ptr<Expression>(new Literal(ValuePtr())))); //undef as should always be overwritten.
+	this->globalscope.assignments.push_back({"$fn", make_shared<Literal>(ValuePtr(0.0))});
+	this->globalscope.assignments.push_back({"$fs", make_shared<Literal>(ValuePtr(2.0))});
+	this->globalscope.assignments.push_back({"$fa", make_shared<Literal>(ValuePtr(12.0))});
+	this->globalscope.assignments.push_back({"$t", make_shared<Literal>(ValuePtr(0.0))});
+	this->globalscope.assignments.push_back({"$preview", make_shared<Literal>(ValuePtr())}); //undef as should always be overwritten.
 
-	Value::VectorType zero3;
-	zero3.push_back(ValuePtr(0.0));
-	zero3.push_back(ValuePtr(0.0));
-	zero3.push_back(ValuePtr(0.0));
-	ValuePtr zero3val(zero3);
-	this->globalscope.assignments.push_back(Assignment("$vpt", shared_ptr<Expression>(new Literal(zero3val))));
-	this->globalscope.assignments.push_back(Assignment("$vpr", shared_ptr<Expression>(new Literal(zero3val))));
-	this->globalscope.assignments.push_back(Assignment("$vpd", shared_ptr<Expression>(new Literal(ValuePtr(500)))));
+	ValuePtr zero3val(Value::VectorType{{0.0}, {0.0}, {0.0}});
+	this->globalscope.assignments.push_back({"$vpt", make_shared<Literal>(zero3val)});
+	this->globalscope.assignments.push_back({"$vpr", make_shared<Literal>(zero3val)});
+	this->globalscope.assignments.push_back({"$vpd", make_shared<Literal>(ValuePtr{500})});
 }
 
 Builtins::~Builtins()
