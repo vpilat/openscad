@@ -52,3 +52,6 @@ src/*.debug
 /Testing
 .DS_Store
 /build
+CMakeFiles
+CMakeCache.txt
+OpenSCAD_autogen
