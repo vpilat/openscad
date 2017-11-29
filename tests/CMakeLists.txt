@@ -1124,6 +1124,7 @@ configure_file(${CMAKE_SOURCE_DIR}/../testdata/scad/templates/import_dxf-tests-t
 file(GLOB FEATURES_3D_FILES ${CMAKE_SOURCE_DIR}/../testdata/scad/3D/features/*.scad)
 file(GLOB FEATURES_2D_FILES ${CMAKE_SOURCE_DIR}/../testdata/scad/2D/features/*.scad)
 file(GLOB DEPRECATED_3D_FILES ${CMAKE_SOURCE_DIR}/../testdata/scad/3D/deprecated/*.scad)
+file(GLOB ISSUES_2D_FILES ${CMAKE_SOURCE_DIR}/../testdata/scad/2D/issues/*.scad)
 file(GLOB ISSUES_3D_FILES ${CMAKE_SOURCE_DIR}/../testdata/scad/3D/issues/*.scad)
 file(GLOB SCAD_DXF_FILES ${CMAKE_SOURCE_DIR}/../testdata/scad/dxf/*.scad)
 file(GLOB SCAD_AMF_FILES ${CMAKE_SOURCE_DIR}/../testdata/scad/amf/*.scad)
@@ -1224,7 +1225,7 @@ list(APPEND ASTDUMPTEST_FILES ${MISC_FILES}
 
 list(APPEND DUMPTEST_FILES ${FEATURES_2D_FILES} ${FEATURES_3D_FILES} ${DEPRECATED_3D_FILES} ${MISC_FILES})
 
-list(APPEND CGALPNGTEST_2D_FILES ${FEATURES_2D_FILES} ${SCAD_DXF_FILES} ${EXAMPLE_2D_FILES})
+list(APPEND CGALPNGTEST_2D_FILES ${FEATURES_2D_FILES} ${SCAD_DXF_FILES} ${ISSUES_2D_FILES} ${EXAMPLE_2D_FILES})
 list(APPEND CGALPNGTEST_3D_FILES ${FEATURES_3D_FILES} ${SCAD_AMF_FILES} ${DEPRECATED_3D_FILES} ${ISSUES_3D_FILES} ${EXAMPLE_3D_FILES})
 list(APPEND CGALPNGTEST_3D_FILES ${CMAKE_SOURCE_DIR}/../testdata/scad/misc/include-tests.scad
                            ${CMAKE_SOURCE_DIR}/../testdata/scad/misc/use-tests.scad
@@ -1327,7 +1328,7 @@ disable_tests(
 )
 
 # 2D tests
-list(APPEND FILES_2D ${FEATURES_2D_FILES} ${SCAD_DXF_FILES} ${SCAD_SVG_FILES} ${EXAMPLE_2D_FILES})
+list(APPEND FILES_2D ${FEATURES_2D_FILES} ${SCAD_DXF_FILES} ${SCAD_SVG_FILES} ${ISSUES_2D_FILES} ${EXAMPLE_2D_FILES})
 list(APPEND ALL_2D_FILES ${FILES_2D})
 
 # FIXME: This test illustrates a weakness in child() combined with modifiers.
@@ -1473,7 +1474,6 @@ list(APPEND BUGS_FILES ${CMAKE_SOURCE_DIR}/../testdata/scad/bugs/issue13.scad
                        ${CMAKE_SOURCE_DIR}/../testdata/scad/bugs/issue666.scad
                        ${CMAKE_SOURCE_DIR}/../testdata/scad/bugs/issue791.scad
                        ${CMAKE_SOURCE_DIR}/../testdata/scad/bugs/issue802.scad
-                       ${CMAKE_SOURCE_DIR}/../testdata/scad/bugs/issue899.scad
                        ${CMAKE_SOURCE_DIR}/../testdata/scad/bugs/issue945.scad
                        ${CMAKE_SOURCE_DIR}/../testdata/scad/bugs/issue945b.scad
                        ${CMAKE_SOURCE_DIR}/../testdata/scad/bugs/issue945c.scad
@@ -1481,9 +1481,6 @@ list(APPEND BUGS_FILES ${CMAKE_SOURCE_DIR}/../testdata/scad/bugs/issue13.scad
                        ${CMAKE_SOURCE_DIR}/../testdata/scad/bugs/issue945e.scad
                        ${CMAKE_SOURCE_DIR}/../testdata/scad/bugs/issue945f.scad
                        ${CMAKE_SOURCE_DIR}/../testdata/scad/bugs/issue999.scad
-                       ${CMAKE_SOURCE_DIR}/../testdata/scad/bugs/issue1223.scad
-                       ${CMAKE_SOURCE_DIR}/../testdata/scad/bugs/issue1223b.scad
-                       ${CMAKE_SOURCE_DIR}/../testdata/scad/bugs/issue1246.scad
                        ${CMAKE_SOURCE_DIR}/../testdata/scad/bugs/issue1455.scad
                        ${CMAKE_SOURCE_DIR}/../testdata/scad/bugs/issue1529.scad
                        ${CMAKE_SOURCE_DIR}/../testdata/scad/bugs/issue1580-back-to-back.scad
@@ -1492,7 +1489,6 @@ list(APPEND BUGS_FILES ${CMAKE_SOURCE_DIR}/../testdata/scad/bugs/issue13.scad
                        ${CMAKE_SOURCE_DIR}/../testdata/scad/bugs/issue1580-import-back-to-back2.scad
                        ${CMAKE_SOURCE_DIR}/../testdata/scad/bugs/issue1580-zero-area-triangle.scad
                        ${CMAKE_SOURCE_DIR}/../testdata/scad/bugs/issue1580-import-zero-area-triangle.scad
-                       ${CMAKE_SOURCE_DIR}/../testdata/scad/bugs/issue1803.scad
                        ${CMAKE_SOURCE_DIR}/../testdata/scad/bugs/issue1876.scad
 )
 
